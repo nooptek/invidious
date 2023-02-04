@@ -81,78 +81,70 @@ module Invidious::JSONify::APIv1
           video.adaptive_fmts.each do |fmt|
             json.object do
               # Only available on regular videos, not livestreams/OTF streams
-              if init_range = fmt["initRange"]?
-                json.field "init", "#{init_range["start"]}-#{init_range["end"]}"
-              end
-              if index_range = fmt["indexRange"]?
-                json.field "index", "#{index_range["start"]}-#{index_range["end"]}"
-              end
+              json.field "init", fmt.init_range.to_s if fmt.init_range
+              json.field "index", fmt.index_range.to_s if fmt.index_range
+
+              # Livestream chunk infos. Should be present when `init` and `index` aren't
+              json.field "targetDurationSec", fmt.target_duration if fmt.target_duration
+              json.field "maxDvrDurationSec", fmt.max_dvr_duration if fmt.max_dvr_duration
 
               # Not available on MPEG-4 Timed Text (`text/mp4`) streams (livestreams only)
-              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
+              json.field "bitrate", fmt.bitrate.to_s if fmt.responds_to?(:bitrate)
 
               if proxy
                 json.field "url", Invidious::HttpServer::Utils.proxy_video_url(
-                  fmt["url"].to_s, absolute: true
+                  fmt.url, absolute: true
                 )
               else
-                json.field "url", fmt["url"]
+                json.field "url", fmt.url
               end
 
-              json.field "itag", fmt["itag"].as_i.to_s
-              json.field "type", fmt["mimeType"]
-              json.field "clen", fmt["contentLength"]? || "-1"
+              json.field "itag", fmt.itag.to_s
+              json.field "type", fmt.raw_mime_type
+              json.field "clen", fmt.content_length if fmt.responds_to?(:content_length)
+
+              json.field "encoding", fmt.codecs
 
               # Last modified is a unix timestamp with µS, with the dot omitted.
               # E.g: 1638056732(.)141582
               #
               # On livestreams, it's not present, so always fall back to the
               # current unix timestamp (up to mS precision) for compatibility.
-              last_modified = fmt["lastModified"]?
-              last_modified ||= "#{Time.utc.to_unix_ms.to_s}000"
-              json.field "lmt", last_modified
+              last_modified = fmt.last_modified || Time.utc
+              json.field "lmt", "#{last_modified.to_unix_ms}000"
 
-              json.field "projectionType", fmt["projectionType"]
+              json.field "projectionType", fmt.projection_type.to_s.upcase
 
-              height = fmt["height"]?.try &.as_i
-              width = fmt["width"]?.try &.as_i
-
-              fps = fmt["fps"]?.try &.as_i
-
-              if fps
-                json.field "fps", fps
+              if fmt.is_a?(Videos::AdaptativeVideoStream)
+                json.field "fps", fmt.video_fps
+                json.field "size", "#{fmt.video_width}x#{fmt.video_height}"
               end
 
-              if height && width
-                json.field "size", "#{width}x#{height}"
-                json.field "resolution", "#{height}p"
-
-                quality_label = "#{width > height ? height : width}p"
-
-                if fps && fps > 30
-                  quality_label += fps.to_s
-                end
-
-                json.field "qualityLabel", quality_label
-              end
-
-              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
+              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt.itag)
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+
+                if fmt_info["height"]?
+                  json.field "resolution", "#{fmt_info["height"]}p"
+
+                  quality_label = "#{Math.min(fmt_info["width"].to_i, fmt_info["height"].to_i)}p"
+                  if fmt.responds_to?(:video_fps) && fmt.video_fps > 30
+                    quality_label += fmt.video_fps.to_s
+                  end
+                  json.field "qualityLabel", quality_label
+                end
               end
 
-              # Livestream chunk infos
-              json.field "targetDurationSec", fmt["targetDurationSec"].as_i if fmt.has_key?("targetDurationSec")
-              json.field "maxDvrDurationSec", fmt["maxDvrDurationSec"].as_i if fmt.has_key?("maxDvrDurationSec")
-
               # Audio-related data
-              json.field "audioQuality", fmt["audioQuality"] if fmt.has_key?("audioQuality")
-              json.field "audioSampleRate", fmt["audioSampleRate"].as_s.to_i if fmt.has_key?("audioSampleRate")
-              json.field "audioChannels", fmt["audioChannels"] if fmt.has_key?("audioChannels")
+              if fmt.is_a?(Videos::AdaptativeAudioStream)
+                json.field "audioQuality", fmt.audio_quality
+                json.field "audioSampleRate", fmt.audio_sample_rate
+                json.field "audioChannels", fmt.audio_channels
+              end
 
               # Extra misc stuff
-              json.field "colorInfo", fmt["colorInfo"] if fmt.has_key?("colorInfo")
-              json.field "captionTrack", fmt["captionTrack"] if fmt.has_key?("captionTrack")
+              # json.field "colorInfo", fmt["colorInfo"] if fmt.has_key?("colorInfo")
+              # json.field "captionTrack", fmt["captionTrack"] if fmt.has_key?("captionTrack")
             end
           end
         end
@@ -162,38 +154,31 @@ module Invidious::JSONify::APIv1
         json.array do
           video.fmt_stream.each do |fmt|
             json.object do
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"].as_i.to_s
-              json.field "type", fmt["mimeType"]
-              json.field "quality", fmt["quality"]
+              json.field "url", fmt.url
+              json.field "itag", fmt.itag.to_s
+              json.field "type", fmt.raw_mime_type
+              json.field "quality", fmt.label
 
-              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
+              json.field "bitrate", fmt.bitrate.to_s if fmt.responds_to?(:bitrate)
 
-              height = fmt["height"]?.try &.as_i
-              width = fmt["width"]?.try &.as_i
+              json.field "encoding", fmt.codecs
 
-              fps = fmt["fps"]?.try &.as_i
+              json.field "size", "#{fmt.video_width}x#{fmt.video_height}"
+              json.field "fps", fmt.video_fps
 
-              if fps
-                json.field "fps", fps
-              end
-
-              if height && width
-                json.field "size", "#{width}x#{height}"
-                json.field "resolution", "#{height}p"
-
-                quality_label = "#{width > height ? height : width}p"
-
-                if fps && fps > 30
-                  quality_label += fps.to_s
-                end
-
-                json.field "qualityLabel", quality_label
-              end
-
-              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
+              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt.itag)
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+
+                if fmt_info["height"]?
+                  json.field "resolution", "#{fmt_info["height"]}p"
+
+                  quality_label = "#{Math.min(fmt_info["width"].to_i, fmt_info["height"].to_i)}p"
+                  if fmt.responds_to?(:video_fps) && fmt.video_fps > 30
+                    quality_label += fmt.video_fps.to_s
+                  end
+                  json.field "qualityLabel", quality_label
+                end
               end
             end
           end

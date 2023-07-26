@@ -173,6 +173,7 @@ struct InvidiousPlaylist
 
   @[DB::Field(converter: InvidiousPlaylist::PlaylistPrivacyConverter)]
   property privacy : PlaylistPrivacy = PlaylistPrivacy::Private
+  @[DB::Field(converter: InvidiousPlaylist::Int64ArrayConverter)]
   property index : Array(Int64)
 
   @[DB::Field(ignore: true)]
@@ -181,6 +182,16 @@ struct InvidiousPlaylist
   module PlaylistPrivacyConverter
     def self.from_rs(rs)
       return PlaylistPrivacy.parse(rs.read(String))
+    end
+  end
+
+  module Int64ArrayConverter
+    def self.from_rs(rs)
+      begin
+        Array(Int64).from_json(rs.read(String))
+      rescue ex
+        Array(Int64).from_json("[]")
+      end
     end
   end
 

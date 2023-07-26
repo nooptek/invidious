@@ -9,7 +9,10 @@ module Invidious::Database::Users
 
   def insert(user : User, update_on_conflict : Bool = false)
     user_array = user.to_a
+    user_array[1] = user_array[1].to_json # notifications
+    user_array[2] = user_array[2].to_json # subscriptions
     user_array[4] = user_array[4].to_json # User preferences
+    user_array[7] = user_array[7].to_json # watched
 
     request = <<-SQL
       INSERT INTO users
@@ -46,13 +49,16 @@ module Invidious::Database::Users
       WHERE email = $2
     SQL
 
-    PG_DB.exec(request, user.watched, user.email)
+    PG_DB.exec(request, user.watched.to_json, user.email)
   end
 
   def mark_watched(user : User, vid : String)
     request = <<-SQL
       UPDATE users
-      SET watched = array_append(array_remove(watched, $1), $1)
+      SET watched = (
+        SELECT json_group_array(DISTINCT value)
+        FROM json_each(json_insert(watched, '$[#]', $1))
+      )
       WHERE email = $2
     SQL
 
@@ -62,7 +68,11 @@ module Invidious::Database::Users
   def mark_unwatched(user : User, vid : String)
     request = <<-SQL
       UPDATE users
-      SET watched = array_remove(watched, $1)
+      SET watched = (
+        SELECT json_group_array(value)
+        FROM json_each(watched)
+        WHERE value != $1
+      )
       WHERE email = $2
     SQL
 
@@ -72,7 +82,7 @@ module Invidious::Database::Users
   def clear_watch_history(user : User)
     request = <<-SQL
       UPDATE users
-      SET watched = '{}'
+      SET watched = '[]'
       WHERE email = $1
     SQL
 
@@ -90,14 +100,14 @@ module Invidious::Database::Users
       WHERE email = $2
     SQL
 
-    PG_DB.exec(request, user.subscriptions, user.email)
+    PG_DB.exec(request, user.subscriptions.to_json, user.email)
   end
 
   def subscribe_channel(user : User, ucid : String)
     request = <<-SQL
       UPDATE users
       SET feed_needs_update = true,
-          subscriptions = array_append(subscriptions,$1)
+          subscriptions = json_insert(subscriptions, '$[#]', $1)
       WHERE email = $2
     SQL
 
@@ -108,7 +118,11 @@ module Invidious::Database::Users
     request = <<-SQL
       UPDATE users
       SET feed_needs_update = true,
-          subscriptions = array_remove(subscriptions, $1)
+          subscriptions = (
+            SELECT json_group_array(value)
+            FROM json_each(subscriptions)
+            WHERE value != $1
+          )
       WHERE email = $2
     SQL
 
@@ -122,9 +136,13 @@ module Invidious::Database::Users
   def add_notification(video : ChannelVideo)
     request = <<-SQL
       UPDATE users
-      SET notifications = array_append(notifications, $1),
+      SET notifications = json_insert(notifications, '$[#]', $1),
           feed_needs_update = true
-      WHERE $2 = ANY(subscriptions)
+      WHERE EXISTS (
+        SELECT value
+        FROM json_each(subscriptions)
+        WHERE value = $2
+      )
     SQL
 
     PG_DB.exec(request, video.id, video.ucid)
@@ -133,7 +151,11 @@ module Invidious::Database::Users
   def remove_notification(user : User, vid : String)
     request = <<-SQL
       UPDATE users
-      SET notifications = array_remove(notifications, $1)
+      SET notifications = (
+        SELECT json_group_array(value)
+        FROM json_each(notifications)
+        WHERE value != $1
+      )
       WHERE email = $2
     SQL
 
@@ -143,7 +165,7 @@ module Invidious::Database::Users
   def clear_notifications(user : User)
     request = <<-SQL
       UPDATE users
-      SET notifications = '{}', updated = $1
+      SET notifications = '[]', updated = $1
       WHERE email = $2
     SQL
 
@@ -158,7 +180,11 @@ module Invidious::Database::Users
     request = <<-SQL
       UPDATE users
       SET feed_needs_update = true
-      WHERE $1 = ANY(subscriptions)
+      WHERE EXISTS (
+        SELECT value
+        FROM json_each(subscriptions)
+        WHERE value = $1
+      )
     SQL
 
     PG_DB.exec(request, video.ucid)
@@ -231,6 +257,7 @@ module Invidious::Database::Users
       WHERE email = $1
     SQL
 
-    return PG_DB.query_one(request, user.email, as: Array(String))
+    ret = PG_DB.query_one(request, user.email, as: String)
+    return Array(String).from_json(ret)
   end
 end

@@ -13,6 +13,7 @@ module Invidious::Database::Playlists
   def insert(playlist : InvidiousPlaylist)
     playlist_array = playlist.to_a
     playlist_array[7] = playlist_array[7].to_s # privacy
+    playlist_array[8] = playlist_array[8].to_json # index
 
     request = <<-SQL
       INSERT INTO playlists
@@ -70,8 +71,8 @@ module Invidious::Database::Playlists
   def update_video_added(id : String, index : String | Int64)
     request = <<-SQL
       UPDATE playlists
-      SET [index] = array_append([index], $1),
-          video_count = cardinality([index]) + 1,
+      SET [index] = json_insert([index], '$[#]', $1),
+          video_count = json_array_length([index]) + 1,
           updated = $2
       WHERE id = $3
     SQL
@@ -82,8 +83,12 @@ module Invidious::Database::Playlists
   def update_video_removed(id : String, index : String | Int64)
     request = <<-SQL
       UPDATE playlists
-      SET [index] = array_remove([index], $1),
-          video_count = cardinality([index]) - 1,
+      SET [index] = (
+            SELECT json_group_array(value)
+            FROM json_each([index])
+            WHERE value != $1
+          ),
+          video_count = json_array_length([index]) - 1,
           updated = $2
       WHERE id = $3
     SQL
@@ -220,12 +225,16 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       SELECT * FROM playlist_videos
       WHERE plid = $1
-      ORDER BY array_position($2, [index])
+      ORDER BY (
+        SELECT key
+        FROM json_each($2)
+        WHERE value = [index]
+      ) NULLS LAST
       LIMIT $3
       OFFSET $4
     SQL
 
-    return PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
+    return PG_DB.query_all(request, plid, index.to_json, limit, offset, as: PlaylistVideo)
   end
 
   def select_index(plid : String, vid : String) : Int64?
@@ -242,21 +251,29 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       SELECT id FROM playlist_videos
       WHERE plid = $1
-      ORDER BY array_position($2, [index])
+      ORDER BY (
+        SELECT key
+        FROM json_each($2)
+        WHERE value = [index]
+      ) NULLS LAST
       LIMIT 1
     SQL
 
-    return PG_DB.query_one?(request, plid, index, as: String)
+    return PG_DB.query_one?(request, plid, index.to_json, as: String)
   end
 
   def select_ids(plid : String, index : VideoIndex, limit = 500) : Array(String)
     request = <<-SQL
       SELECT id FROM playlist_videos
       WHERE plid = $1
-      ORDER BY array_position($2, [index])
+      ORDER BY (
+        SELECT key
+        FROM json_each($2)
+        WHERE value = [index]
+      ) NULLS LAST
       LIMIT $3
     SQL
 
-    return PG_DB.query_all(request, plid, index, limit, as: String)
+    return PG_DB.query_all(request, plid, index.to_json, limit, as: String)
   end
 end

@@ -50,19 +50,56 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         # Show latest video from a channel that a user hasn't watched
         # "unseen_only" isn't really correct here, more accurate would be "unwatched_only"
 
-        # "SELECT cv.* FROM channel_videos cv JOIN users ON cv.ucid = any(users.subscriptions) WHERE users.email = $1 AND published > $2 ORDER BY published DESC"
-        # "SELECT DISTINCT ON (cv.ucid) cv.* FROM channel_videos cv JOIN users ON cv.ucid = any(users.subscriptions) WHERE users.email = ? AND NOT cv.id = any(users.watched) AND published > $1 ORDER BY ucid, published DESC"
+        # SELECT cv.*
+        # FROM channel_videos cv
+        # JOIN users ON EXISTS (
+        #   SELECT value
+        #   FROM json_each(users.subscriptions)
+        #   WHERE value = cv.ucid
+        # )
+        # WHERE users.email = $1 AND published > $2
+        # ORDER BY published DESC
+        #
+        # SELECT DISTINCT ON (cv.ucid) cv.*
+        # FROM channel_videos cv
+        # JOIN users ON EXISTS (
+        #   SELECT value
+        #   FROM json_each(users.subscriptions)
+        #   WHERE value = cv.ucid
+        # )
+        # WHERE users.email = ? AND
+        #   NOT EXISTS (
+        #     SELECT value
+        #     FROM json_each(users.watched)
+        #     WHERE value = cv.id
+        #   ) AND
+        #   published > $1
+        # ORDER BY ucid, published DESC
         videos = PG_DB.query_all("SELECT DISTINCT ON (cv.ucid) cv.* " \
                                  "FROM channel_videos cv " \
-                                 "JOIN users ON cv.ucid = any(users.subscriptions) " \
-                                 "WHERE users.email = $1 AND NOT cv.id = any(users.watched) AND published > $2 " \
+                                 "JOIN users ON EXISTS ( " \
+                                   "SELECT value " \
+                                   "FROM json_each(users.subscriptions) " \
+                                   "WHERE value = cv.ucid " \
+                                 ") " \
+                                 "WHERE users.email = $1 AND " \
+                                   "NOT EXISTS ( " \
+                                     "SELECT value " \
+                                     "FROM json_each(users.watched) " \
+                                     "WHERE value = cv.id "\
+                                   ") AND " \
+                                   "published > $2 " \
                                  "ORDER BY ucid, published DESC", user.email, dlim, as: ChannelVideo)
       else
         # Show latest video from each channel
 
         videos = PG_DB.query_all("SELECT DISTINCT ON (cv.ucid) cv.* " \
                                  "FROM channel_videos cv " \
-                                 "JOIN users ON cv.ucid = any(users.subscriptions) " \
+                                 "JOIN users ON EXISTS ( "\
+                                   "SELECT value " \
+                                   "FROM json_each(users.subscriptions) " \
+                                   "WHERE value = cv.ucid " \
+                                 ") " \
                                  "WHERE users.email = $1 AND published > $2 " \
                                  "ORDER BY ucid, published DESC", user.email, dlim, as: ChannelVideo)
       end
@@ -73,14 +110,28 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         # Only show unwatched
         videos = PG_DB.query_all("SELECT cv.* " \
                                  "FROM channel_videos cv " \
-                                 "JOIN users ON cv.ucid = any(users.subscriptions) " \
-                                 "WHERE users.email = $1 AND NOT cv.id = any(users.watched) AND published > $2 " \
+                                 "JOIN users ON EXISTS ( "\
+                                   "SELECT value " \
+                                   "FROM json_each(users.subscriptions) " \
+                                   "WHERE value = cv.ucid " \
+                                 ") " \
+                                 "WHERE users.email = $1 AND " \
+                                   "NOT EXISTS ( " \
+                                     "SELECT value " \
+                                     "FROM json_each(users.watched) " \
+                                     "WHERE value = cv.id "\
+                                   ") AND " \
+                                   "published > $2 " \
                                  "ORDER BY published DESC LIMIT $3 OFFSET $4", user.email, dlim, limit, offset, as: ChannelVideo)
       else
         # Sort subscriptions as normal
         videos = PG_DB.query_all("SELECT cv.* " \
                                  "FROM channel_videos cv " \
-                                 "JOIN users ON cv.ucid = any(users.subscriptions) " \
+                                 "JOIN users ON EXISTS ( "\
+                                   "SELECT value " \
+                                   "FROM json_each(users.subscriptions) " \
+                                   "WHERE value = cv.ucid " \
+                                 ") " \
                                  "WHERE users.email = $1 AND published > $2 " \
                                  "ORDER BY published DESC LIMIT $3 OFFSET $4", user.email, dlim, limit, offset, as: ChannelVideo)
       end

@@ -45,7 +45,11 @@ module Invidious::Search
           to_tsvector(cv.title) ||
           to_tsvector(cv.author) AS document
           FROM channel_videos cv
-          JOIN users ON cv.ucid = any(users.subscriptions)
+          JOIN users ON EXISTS (
+            SELECT value
+            FROM json_each(users.subscriptions)
+            WHERE value = cv.ucid
+          )
           WHERE users.email = $1 AND published > $2
           ORDER BY published
         ) v_search WHERE v_search.document @@ plainto_tsquery($3) LIMIT 20 OFFSET $4;",

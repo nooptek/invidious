@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS nonces
 
 CREATE INDEX IF NOT EXISTS nonces_nonce_idx
   ON nonces
-  (nonce COLLATE pg_catalog."default");
+  (nonce);
 

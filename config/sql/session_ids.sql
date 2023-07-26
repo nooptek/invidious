@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS session_ids
 
 CREATE INDEX IF NOT EXISTS session_ids_id_idx
   ON session_ids
-  (id COLLATE pg_catalog."default");
+  (id);
 

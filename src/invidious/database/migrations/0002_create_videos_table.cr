@@ -16,7 +16,7 @@ module Invidious::Database::Migrations
       conn.exec <<-SQL
       CREATE UNIQUE INDEX IF NOT EXISTS id_idx
         ON videos
-        (id COLLATE pg_catalog."default");
+        (id);
       SQL
     end
   end

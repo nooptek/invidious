@@ -22,7 +22,7 @@ module Invidious::Database::Migrations
       conn.exec <<-SQL
       CREATE UNIQUE INDEX IF NOT EXISTS email_unique_idx
         ON users
-        (lower(email) COLLATE pg_catalog."default");
+        (lower(email));
       SQL
     end
   end

@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS channels
 
 CREATE INDEX IF NOT EXISTS channels_id_idx
   ON channels
-  (id COLLATE pg_catalog."default");
+  (id);
 

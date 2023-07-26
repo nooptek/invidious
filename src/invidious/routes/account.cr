@@ -224,13 +224,11 @@ module Invidious::Routes::Account
       moduser = user
     end
 
-    view_name = "subscriptions_#{sha256(moduser.email)}"
     Invidious::Database::Users.delete(moduser)
     Invidious::Database::SessionIDs.delete(email: moduser.email)
     Invidious::Database::Playlists.select_like_iv(moduser.email).each do |pl|
       Invidious::Database::Playlists.delete(pl.id)
     end
-    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
     env.redirect referer
   end
@@ -318,9 +316,6 @@ module Invidious::Routes::Account
     moduser = create_user(email, password)
 
     Invidious::Database::Users.insert(moduser)
-
-    view_name = "subscriptions_#{sha256(moduser.email)}"
-    PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(moduser.email)}")
 
     env.redirect referer
   end

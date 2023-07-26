@@ -19,7 +19,7 @@ module Invidious::Database::Nonces
 
   def delete_expired
     request = <<-SQL
-      DELETE FROM nonces *
+      DELETE FROM nonces
       WHERE expire < now()
     SQL
 

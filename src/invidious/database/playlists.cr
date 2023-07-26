@@ -25,7 +25,7 @@ module Invidious::Database::Playlists
   def delete(id : String)
     PlaylistVideos.delete_by_playlist(id)
     request = <<-SQL
-      DELETE FROM playlists *
+      DELETE FROM playlists
       WHERE id = $1
     SQL
 
@@ -195,7 +195,7 @@ module Invidious::Database::PlaylistVideos
 
   def delete(index)
     request = <<-SQL
-      DELETE FROM playlist_videos *
+      DELETE FROM playlist_videos
       WHERE index = $1
     SQL
 
@@ -204,7 +204,7 @@ module Invidious::Database::PlaylistVideos
 
   def delete_by_playlist(plid : String)
     request = <<-SQL
-      DELETE FROM playlist_videos *
+      DELETE FROM playlist_videos
       WHERE plid = $1
     SQL
 

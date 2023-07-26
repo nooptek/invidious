@@ -15,7 +15,7 @@ module Invidious::Database::Videos
 
   def delete(id)
     request = <<-SQL
-      DELETE FROM videos *
+      DELETE FROM videos
       WHERE id = $1
     SQL
 
@@ -24,7 +24,7 @@ module Invidious::Database::Videos
 
   def delete_expired
     request = <<-SQL
-      DELETE FROM videos *
+      DELETE FROM videos
       WHERE updated < (now() - interval '6 hours')
     SQL
 

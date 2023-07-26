@@ -28,7 +28,7 @@ module Invidious::Database::Users
 
   def delete(user : User)
     request = <<-SQL
-      DELETE FROM users *
+      DELETE FROM users
       WHERE email = $1
     SQL
 

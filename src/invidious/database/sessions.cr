@@ -24,7 +24,7 @@ module Invidious::Database::SessionIDs
 
   def delete(*, sid : String)
     request = <<-SQL
-      DELETE FROM session_ids *
+      DELETE FROM session_ids
       WHERE id = $1
     SQL
 
@@ -33,7 +33,7 @@ module Invidious::Database::SessionIDs
 
   def delete(*, email : String)
     request = <<-SQL
-      DELETE FROM session_ids *
+      DELETE FROM session_ids
       WHERE email = $1
     SQL
 
@@ -42,7 +42,7 @@ module Invidious::Database::SessionIDs
 
   def delete(*, sid : String, email : String)
     request = <<-SQL
-      DELETE FROM session_ids *
+      DELETE FROM session_ids
       WHERE id = $1 AND email = $2
     SQL
 

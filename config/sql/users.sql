@@ -16,8 +16,6 @@ CREATE TABLE IF NOT EXISTS users
   CONSTRAINT users_email_key UNIQUE (email)
 );
 
-GRANT ALL ON TABLE users TO current_user;
-
 -- Index: email_unique_idx
 
 -- DROP INDEX email_unique_idx;

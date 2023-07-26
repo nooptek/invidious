@@ -17,8 +17,6 @@ CREATE TABLE IF NOT EXISTS channel_videos
   CONSTRAINT channel_videos_id_key UNIQUE (id)
 );
 
-GRANT ALL ON TABLE channel_videos TO current_user;
-
 -- Index: channel_videos_ucid_published_idx
 
 -- DROP INDEX channel_videos_ucid_published_idx;

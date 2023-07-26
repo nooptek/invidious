@@ -13,10 +13,6 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE nonces TO current_user;
-      SQL
-
-      conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS nonces_nonce_idx
         ON nonces
         USING btree

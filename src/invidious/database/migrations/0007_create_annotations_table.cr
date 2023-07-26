@@ -11,10 +11,6 @@ module Invidious::Database::Migrations
         CONSTRAINT annotations_id_key UNIQUE (id)
       );
       SQL
-
-      conn.exec <<-SQL
-      GRANT ALL ON TABLE annotations TO current_user;
-      SQL
     end
   end
 end

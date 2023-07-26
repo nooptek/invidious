@@ -10,8 +10,6 @@ CREATE UNLOGGED TABLE IF NOT EXISTS videos
   CONSTRAINT videos_pkey PRIMARY KEY (id)
 );
 
-GRANT ALL ON TABLE videos TO current_user;
-
 -- Index: id_idx
 
 -- DROP INDEX id_idx;

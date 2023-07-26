@@ -16,10 +16,6 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE channels TO current_user;
-      SQL
-
-      conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS channels_id_idx
         ON channels
         USING btree

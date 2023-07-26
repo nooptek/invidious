@@ -10,8 +10,6 @@ CREATE TABLE IF NOT EXISTS session_ids
   CONSTRAINT session_ids_pkey PRIMARY KEY (id)
 );
 
-GRANT ALL ON TABLE session_ids TO current_user;
-
 -- Index: session_ids_id_idx
 
 -- DROP INDEX session_ids_id_idx;

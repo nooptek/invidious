@@ -18,10 +18,6 @@ module Invidious::Database::Migrations
         PRIMARY KEY (index,plid)
       );
       SQL
-
-      conn.exec <<-SQL
-      GRANT ALL ON TABLE playlist_videos TO current_user;
-      SQL
     end
   end
 end

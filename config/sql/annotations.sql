@@ -8,5 +8,3 @@ CREATE TABLE IF NOT EXISTS annotations
   annotations xml,
   CONSTRAINT annotations_id_key UNIQUE (id)
 );
-
-GRANT ALL ON TABLE annotations TO current_user;

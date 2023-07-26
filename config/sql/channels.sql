@@ -12,8 +12,6 @@ CREATE TABLE IF NOT EXISTS channels
   CONSTRAINT channels_id_key UNIQUE (id)
 );
 
-GRANT ALL ON TABLE channels TO current_user;
-
 -- Index: channels_id_idx
 
 -- DROP INDEX channels_id_idx;

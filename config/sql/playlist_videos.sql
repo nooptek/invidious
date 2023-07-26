@@ -15,5 +15,3 @@ CREATE TABLE IF NOT EXISTS playlist_videos
     live_now boolean,
     PRIMARY KEY (index,plid)
 );
-
-GRANT ALL ON TABLE playlist_videos TO current_user;

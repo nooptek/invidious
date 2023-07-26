@@ -20,10 +20,6 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE users TO current_user;
-      SQL
-
-      conn.exec <<-SQL
       CREATE UNIQUE INDEX IF NOT EXISTS email_unique_idx
         ON users
         USING btree

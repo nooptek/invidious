@@ -28,10 +28,6 @@ module Invidious::Database::Migrations
         index int8[]
       );
       SQL
-
-      conn.exec <<-SQL
-      GRANT ALL ON playlists TO current_user;
-      SQL
     end
 
     private def privacy_type_exists?(conn : DB::Connection) : Bool

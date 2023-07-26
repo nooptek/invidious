@@ -9,8 +9,6 @@ CREATE TABLE IF NOT EXISTS nonces
   CONSTRAINT nonces_id_key UNIQUE (nonce)
 );
 
-GRANT ALL ON TABLE nonces TO current_user;
-
 -- Index: nonces_nonce_idx
 
 -- DROP INDEX nonces_nonce_idx;

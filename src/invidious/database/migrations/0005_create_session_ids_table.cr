@@ -14,10 +14,6 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE session_ids TO current_user;
-      SQL
-
-      conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS session_ids_id_idx
         ON session_ids
         USING btree

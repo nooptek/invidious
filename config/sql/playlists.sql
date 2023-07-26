@@ -25,5 +25,3 @@ CREATE TABLE IF NOT EXISTS playlists
     privacy privacy,
     index int8[]
 );
-
-GRANT ALL ON playlists TO current_user;

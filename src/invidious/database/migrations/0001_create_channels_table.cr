@@ -18,7 +18,6 @@ module Invidious::Database::Migrations
       conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS channels_id_idx
         ON channels
-        USING btree
         (id COLLATE pg_catalog."default");
       SQL
     end

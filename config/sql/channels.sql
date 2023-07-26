@@ -18,6 +18,5 @@ CREATE TABLE IF NOT EXISTS channels
 
 CREATE INDEX IF NOT EXISTS channels_id_idx
   ON channels
-  USING btree
   (id COLLATE pg_catalog."default");
 

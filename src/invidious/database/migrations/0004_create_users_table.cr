@@ -22,7 +22,6 @@ module Invidious::Database::Migrations
       conn.exec <<-SQL
       CREATE UNIQUE INDEX IF NOT EXISTS email_unique_idx
         ON users
-        USING btree
         (lower(email) COLLATE pg_catalog."default");
       SQL
     end

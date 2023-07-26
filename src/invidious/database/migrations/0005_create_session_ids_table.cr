@@ -16,7 +16,6 @@ module Invidious::Database::Migrations
       conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS session_ids_id_idx
         ON session_ids
-        USING btree
         (id COLLATE pg_catalog."default");
       SQL
     end

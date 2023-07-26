@@ -23,6 +23,5 @@ CREATE TABLE IF NOT EXISTS channel_videos
 
 CREATE INDEX IF NOT EXISTS channel_videos_ucid_published_idx
   ON channel_videos
-  USING btree
   (ucid COLLATE pg_catalog."default", published);
 

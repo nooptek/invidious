@@ -22,6 +22,5 @@ CREATE TABLE IF NOT EXISTS users
 
 CREATE UNIQUE INDEX IF NOT EXISTS email_unique_idx
   ON users
-  USING btree
   (lower(email) COLLATE pg_catalog."default");
 

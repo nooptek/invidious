@@ -12,6 +12,7 @@ module Invidious::Database::Playlists
 
   def insert(playlist : InvidiousPlaylist)
     playlist_array = playlist.to_a
+    playlist_array[7] = playlist_array[7].to_s # privacy
 
     request = <<-SQL
       INSERT INTO playlists
@@ -43,7 +44,7 @@ module Invidious::Database::Playlists
       WHERE id = $5
     SQL
 
-    PG_DB.exec(request, title, privacy, description, updated, id)
+    PG_DB.exec(request, title, privacy.to_s, description, updated, id)
   end
 
   def update_description(id : String, description)

@@ -9,7 +9,6 @@ module Invidious::Database
   # dependencies between different parts of the software.
   def check_integrity(cfg)
     return if !cfg.check_tables
-    Invidious::Database.check_enum("privacy", PlaylistPrivacy)
 
     Invidious::Database.check_table("channels", InvidiousChannel)
     Invidious::Database.check_table("channel_videos", ChannelVideo)
@@ -28,18 +27,6 @@ module Invidious::Database
   #
   # Table/enum integrity checks
   #
-
-  def check_enum(enum_name, struct_type = nil)
-    return # TODO
-
-    if !PG_DB.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
-      LOGGER.info("check_enum: CREATE TYPE #{enum_name}")
-
-      PG_DB.using_connection do |conn|
-        conn.as(PG::Connection).exec_all(File.read("config/sql/#{enum_name}.sql"))
-      end
-    end
-  end
 
   def check_table(table_name, struct_type = nil)
     # Create table if it doesn't exist

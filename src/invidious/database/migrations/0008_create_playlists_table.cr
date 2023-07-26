@@ -3,17 +3,6 @@ module Invidious::Database::Migrations
     version 8
 
     def up(conn : DB::Connection)
-      if !privacy_type_exists?(conn)
-        conn.exec <<-SQL
-        CREATE TYPE privacy AS ENUM
-        (
-          'Public',
-          'Unlisted',
-          'Private'
-        );
-        SQL
-      end
-
       conn.exec <<-SQL
       CREATE TABLE IF NOT EXISTS playlists
       (
@@ -24,23 +13,10 @@ module Invidious::Database::Migrations
         video_count integer,
         created text,
         updated text,
-        privacy privacy,
+        privacy text check(privacy in ('Public', 'Unlisted', 'Private')),
         index int8[]
       );
       SQL
-    end
-
-    private def privacy_type_exists?(conn : DB::Connection) : Bool
-      request = <<-SQL
-        SELECT 1 AS one
-        FROM pg_type
-        INNER JOIN pg_namespace ON pg_namespace.oid = pg_type.typnamespace
-        WHERE pg_namespace.nspname = 'public'
-          AND pg_type.typname = 'privacy'
-        LIMIT 1;
-      SQL
-
-      !conn.query_one?(request, as: Int32).nil?
     end
   end
 end

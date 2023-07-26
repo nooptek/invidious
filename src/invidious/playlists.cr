@@ -180,7 +180,7 @@ struct InvidiousPlaylist
 
   module PlaylistPrivacyConverter
     def self.from_rs(rs)
-      return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
+      return PlaylistPrivacy.parse(rs.read(String))
     end
   end
 

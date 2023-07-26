@@ -1,14 +1,3 @@
--- Type: privacy
-
--- DROP TYPE privacy;
-
-CREATE TYPE privacy AS ENUM
-(
-    'Public',
-    'Unlisted',
-    'Private'
-);
-
 -- Table: playlists
 
 -- DROP TABLE playlists;
@@ -22,6 +11,6 @@ CREATE TABLE IF NOT EXISTS playlists
     video_count integer,
     created text,
     updated text,
-    privacy privacy,
+    privacy text check(privacy in ('Public', 'Unlisted', 'Private')),
     index int8[]
 );

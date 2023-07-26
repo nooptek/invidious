@@ -5,6 +5,6 @@
 CREATE TABLE IF NOT EXISTS annotations
 (
   id text NOT NULL,
-  annotations xml,
+  annotations text,
   CONSTRAINT annotations_id_key UNIQUE (id)
 );

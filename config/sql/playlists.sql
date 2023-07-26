@@ -1,19 +1,19 @@
--- Type: public.privacy
+-- Type: privacy
 
--- DROP TYPE public.privacy;
+-- DROP TYPE privacy;
 
-CREATE TYPE public.privacy AS ENUM
+CREATE TYPE privacy AS ENUM
 (
     'Public',
     'Unlisted',
     'Private'
 );
 
--- Table: public.playlists
+-- Table: playlists
 
--- DROP TABLE public.playlists;
+-- DROP TABLE playlists;
 
-CREATE TABLE IF NOT EXISTS public.playlists
+CREATE TABLE IF NOT EXISTS playlists
 (
     title text,
     id text primary key,
@@ -26,4 +26,4 @@ CREATE TABLE IF NOT EXISTS public.playlists
     index int8[]
 );
 
-GRANT ALL ON public.playlists TO current_user;
+GRANT ALL ON playlists TO current_user;

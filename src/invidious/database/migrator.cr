@@ -1,5 +1,5 @@
 class Invidious::Database::Migrator
-  MIGRATIONS_TABLE = "public.invidious_migrations"
+  MIGRATIONS_TABLE = "invidious_migrations"
 
   class_getter migrations = [] of Invidious::Database::Migration.class
 

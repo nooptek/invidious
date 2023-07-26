@@ -1,8 +1,8 @@
--- Table: public.playlist_videos
+-- Table: playlist_videos
 
--- DROP TABLE public.playlist_videos;
+-- DROP TABLE playlist_videos;
 
-CREATE TABLE IF NOT EXISTS public.playlist_videos
+CREATE TABLE IF NOT EXISTS playlist_videos
 (
     title text,
     id text,
@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS public.playlist_videos
     PRIMARY KEY (index,plid)
 );
 
-GRANT ALL ON TABLE public.playlist_videos TO current_user;
+GRANT ALL ON TABLE playlist_videos TO current_user;

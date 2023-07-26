@@ -5,7 +5,7 @@ module Invidious::Database::Migrations
     def up(conn : DB::Connection)
       if !privacy_type_exists?(conn)
         conn.exec <<-SQL
-        CREATE TYPE public.privacy AS ENUM
+        CREATE TYPE privacy AS ENUM
         (
           'Public',
           'Unlisted',
@@ -15,7 +15,7 @@ module Invidious::Database::Migrations
       end
 
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.playlists
+      CREATE TABLE IF NOT EXISTS playlists
       (
         title text,
         id text primary key,
@@ -30,7 +30,7 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON public.playlists TO current_user;
+      GRANT ALL ON playlists TO current_user;
       SQL
     end
 

@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.users
+      CREATE TABLE IF NOT EXISTS users
       (
         updated timestamp with time zone,
         notifications text[],
@@ -20,12 +20,12 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE public.users TO current_user;
+      GRANT ALL ON TABLE users TO current_user;
       SQL
 
       conn.exec <<-SQL
       CREATE UNIQUE INDEX IF NOT EXISTS email_unique_idx
-        ON public.users
+        ON users
         USING btree
         (lower(email) COLLATE pg_catalog."default");
       SQL

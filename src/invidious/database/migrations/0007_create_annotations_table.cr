@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.annotations
+      CREATE TABLE IF NOT EXISTS annotations
       (
         id text NOT NULL,
         annotations xml,
@@ -13,7 +13,7 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE public.annotations TO current_user;
+      GRANT ALL ON TABLE annotations TO current_user;
       SQL
     end
   end

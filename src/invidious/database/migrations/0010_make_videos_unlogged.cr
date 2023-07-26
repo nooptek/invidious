@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      ALTER TABLE public.videos SET UNLOGGED;
+      ALTER TABLE videos SET UNLOGGED;
       SQL
     end
   end

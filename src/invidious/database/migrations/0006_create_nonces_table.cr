@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.nonces
+      CREATE TABLE IF NOT EXISTS nonces
       (
         nonce text,
         expire timestamp with time zone,
@@ -13,12 +13,12 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE public.nonces TO current_user;
+      GRANT ALL ON TABLE nonces TO current_user;
       SQL
 
       conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS nonces_nonce_idx
-        ON public.nonces
+        ON nonces
         USING btree
         (nonce COLLATE pg_catalog."default");
       SQL

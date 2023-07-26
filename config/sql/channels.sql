@@ -1,8 +1,8 @@
--- Table: public.channels
+-- Table: channels
 
--- DROP TABLE public.channels;
+-- DROP TABLE channels;
 
-CREATE TABLE IF NOT EXISTS public.channels
+CREATE TABLE IF NOT EXISTS channels
 (
   id text NOT NULL,
   author text,
@@ -12,14 +12,14 @@ CREATE TABLE IF NOT EXISTS public.channels
   CONSTRAINT channels_id_key UNIQUE (id)
 );
 
-GRANT ALL ON TABLE public.channels TO current_user;
+GRANT ALL ON TABLE channels TO current_user;
 
--- Index: public.channels_id_idx
+-- Index: channels_id_idx
 
--- DROP INDEX public.channels_id_idx;
+-- DROP INDEX channels_id_idx;
 
 CREATE INDEX IF NOT EXISTS channels_id_idx
-  ON public.channels
+  ON channels
   USING btree
   (id COLLATE pg_catalog."default");
 

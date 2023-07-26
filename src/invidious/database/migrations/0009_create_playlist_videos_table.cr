@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.playlist_videos
+      CREATE TABLE IF NOT EXISTS playlist_videos
       (
         title text,
         id text,
@@ -20,7 +20,7 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE public.playlist_videos TO current_user;
+      GRANT ALL ON TABLE playlist_videos TO current_user;
       SQL
     end
   end

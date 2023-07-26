@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      CREATE UNLOGGED TABLE IF NOT EXISTS public.videos
+      CREATE UNLOGGED TABLE IF NOT EXISTS videos
       (
         id text NOT NULL,
         info text,
@@ -14,12 +14,12 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE public.videos TO current_user;
+      GRANT ALL ON TABLE videos TO current_user;
       SQL
 
       conn.exec <<-SQL
       CREATE UNIQUE INDEX IF NOT EXISTS id_idx
-        ON public.videos
+        ON videos
         USING btree
         (id COLLATE pg_catalog."default");
       SQL

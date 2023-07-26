@@ -1,8 +1,8 @@
--- Table: public.users
+-- Table: users
 
--- DROP TABLE public.users;
+-- DROP TABLE users;
 
-CREATE TABLE IF NOT EXISTS public.users
+CREATE TABLE IF NOT EXISTS users
 (
   updated timestamp with time zone,
   notifications text[],
@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS public.users
   CONSTRAINT users_email_key UNIQUE (email)
 );
 
-GRANT ALL ON TABLE public.users TO current_user;
+GRANT ALL ON TABLE users TO current_user;
 
--- Index: public.email_unique_idx
+-- Index: email_unique_idx
 
--- DROP INDEX public.email_unique_idx;
+-- DROP INDEX email_unique_idx;
 
 CREATE UNIQUE INDEX IF NOT EXISTS email_unique_idx
-  ON public.users
+  ON users
   USING btree
   (lower(email) COLLATE pg_catalog."default");
 

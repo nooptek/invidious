@@ -4,7 +4,7 @@ module Invidious::Database::Migrations
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.channels
+      CREATE TABLE IF NOT EXISTS channels
       (
         id text NOT NULL,
         author text,
@@ -16,12 +16,12 @@ module Invidious::Database::Migrations
       SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON TABLE public.channels TO current_user;
+      GRANT ALL ON TABLE channels TO current_user;
       SQL
 
       conn.exec <<-SQL
       CREATE INDEX IF NOT EXISTS channels_id_idx
-        ON public.channels
+        ON channels
         USING btree
         (id COLLATE pg_catalog."default");
       SQL

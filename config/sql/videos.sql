@@ -1,8 +1,8 @@
--- Table: public.videos
+-- Table: videos
 
--- DROP TABLE public.videos;
+-- DROP TABLE videos;
 
-CREATE UNLOGGED TABLE IF NOT EXISTS public.videos
+CREATE UNLOGGED TABLE IF NOT EXISTS videos
 (
   id text NOT NULL,
   info text,
@@ -10,14 +10,14 @@ CREATE UNLOGGED TABLE IF NOT EXISTS public.videos
   CONSTRAINT videos_pkey PRIMARY KEY (id)
 );
 
-GRANT ALL ON TABLE public.videos TO current_user;
+GRANT ALL ON TABLE videos TO current_user;
 
--- Index: public.id_idx
+-- Index: id_idx
 
--- DROP INDEX public.id_idx;
+-- DROP INDEX id_idx;
 
 CREATE UNIQUE INDEX IF NOT EXISTS id_idx
-  ON public.videos
+  ON videos
   USING btree
   (id COLLATE pg_catalog."default");
 

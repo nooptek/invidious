@@ -37,6 +37,7 @@ module Invidious::Search
 
     # Search inside of user subscriptions
     def subscriptions(query : Query, user : Invidious::User) : Array(ChannelVideo)
+      # XXX not supported
       return PG_DB.query_all("
         SELECT id,title,published,updated,ucid,author,length_seconds
         FROM (

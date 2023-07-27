@@ -223,3 +223,30 @@ class DenyFrame < Kemal::Handler
     call_next env
   end
 end
+
+module SQLite3
+  # this is the format used by SQLite's datetime()
+  DATE_FORMAT2 = "%F %T"
+end
+
+class SQLite3::ResultSet
+  private def conv_time(v : String) : Time
+    last_ex = uninitialized ::Exception
+    {SQLite3::DATE_FORMAT, SQLite3::DATE_FORMAT2}.each do |fmt|
+      begin
+        return Time.parse(v, fmt, SQLite3::TIME_ZONE)
+      rescue ex
+        last_ex = ex
+      end
+    end
+    raise last_ex
+  end
+
+  def read(t : Time.class) : Time
+    conv_time read(String)
+  end
+
+  def read(t : Time?.class) : Time?
+    read(String?).try { |v| conv_time v }
+  end
+end

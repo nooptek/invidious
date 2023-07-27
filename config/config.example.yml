@@ -360,17 +360,6 @@ channel_threads: 1
 full_refresh: false
 
 ##
-## Number of threads to use when updating RSS feeds.
-##
-## Notes: This setting is overridden if either "-f THREADS" or
-## "--feed-threads=THREADS" is passed on the command line.
-##
-## Accepted values: a positive integer
-## Default: 1
-##
-feed_threads: 1
-
-##
 ## Enable/Disable the polling job that keeps the decryption
 ## function (for "secured" videos) up to date.
 ##

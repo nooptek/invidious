@@ -1,8 +1,5 @@
 require "crypto/bcrypt/password"
 
-# Materialized views may not be defined using bound parameters (`$1` as used elsewhere)
-MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}') ORDER BY published DESC" }
-
 def create_user(email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))

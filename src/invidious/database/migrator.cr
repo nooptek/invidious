@@ -41,7 +41,7 @@ class Invidious::Database::Migrator
   private def create_migrations_table
     @db.exec <<-SQL
       CREATE TABLE IF NOT EXISTS #{MIGRATIONS_TABLE} (
-        id bigserial PRIMARY KEY,
+        id bigserial PRIMARY KEY, -- check support
         version bigint NOT NULL
       )
     SQL

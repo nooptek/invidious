@@ -22,6 +22,7 @@ end
 def get_subscription_feed(user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)
   offset = (page - 1) * limit
+  dlim = Time.utc - 1.month
 
   notifications = Invidious::Database::Users.select_notifications(user)
 
@@ -49,21 +50,21 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         # Show latest video from a channel that a user hasn't watched
         # "unseen_only" isn't really correct here, more accurate would be "unwatched_only"
 
-        # "SELECT cv.* FROM channel_videos cv JOIN users ON cv.ucid = any(users.subscriptions) WHERE users.email = $1 AND published > now() - interval '1 month' ORDER BY published DESC"
-        # "SELECT DISTINCT ON (cv.ucid) cv.* FROM channel_videos cv JOIN users ON cv.ucid = any(users.subscriptions) WHERE users.email = ? AND NOT cv.id = any(users.watched) AND published > now() - interval '1 month' ORDER BY ucid, published DESC"
+        # "SELECT cv.* FROM channel_videos cv JOIN users ON cv.ucid = any(users.subscriptions) WHERE users.email = $1 AND published > $2 ORDER BY published DESC"
+        # "SELECT DISTINCT ON (cv.ucid) cv.* FROM channel_videos cv JOIN users ON cv.ucid = any(users.subscriptions) WHERE users.email = ? AND NOT cv.id = any(users.watched) AND published > $1 ORDER BY ucid, published DESC"
         videos = PG_DB.query_all("SELECT DISTINCT ON (cv.ucid) cv.* " \
                                  "FROM channel_videos cv " \
                                  "JOIN users ON cv.ucid = any(users.subscriptions) " \
-                                 "WHERE users.email = $1 AND NOT cv.id = any(users.watched) AND published > now() - interval '1 month' " \
-                                 "ORDER BY ucid, published DESC", user.email, as: ChannelVideo)
+                                 "WHERE users.email = $1 AND NOT cv.id = any(users.watched) AND published > $2 " \
+                                 "ORDER BY ucid, published DESC", user.email, dlim, as: ChannelVideo)
       else
         # Show latest video from each channel
 
         videos = PG_DB.query_all("SELECT DISTINCT ON (cv.ucid) cv.* " \
                                  "FROM channel_videos cv " \
                                  "JOIN users ON cv.ucid = any(users.subscriptions) " \
-                                 "WHERE users.email = $1 AND published > now() - interval '1 month' " \
-                                 "ORDER BY ucid, published DESC", user.email, as: ChannelVideo)
+                                 "WHERE users.email = $1 AND published > $2 " \
+                                 "ORDER BY ucid, published DESC", user.email, dlim, as: ChannelVideo)
       end
 
       videos.sort_by!(&.published).reverse!
@@ -73,15 +74,15 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         videos = PG_DB.query_all("SELECT cv.* " \
                                  "FROM channel_videos cv " \
                                  "JOIN users ON cv.ucid = any(users.subscriptions) " \
-                                 "WHERE users.email = $1 AND NOT cv.id = any(users.watched) AND published > now() - interval '1 month' " \
-                                 "ORDER BY published DESC LIMIT $2 OFFSET $3", user.email, limit, offset, as: ChannelVideo)
+                                 "WHERE users.email = $1 AND NOT cv.id = any(users.watched) AND published > $2 " \
+                                 "ORDER BY published DESC LIMIT $3 OFFSET $4", user.email, dlim, limit, offset, as: ChannelVideo)
       else
         # Sort subscriptions as normal
         videos = PG_DB.query_all("SELECT cv.* " \
                                  "FROM channel_videos cv " \
                                  "JOIN users ON cv.ucid = any(users.subscriptions) " \
-                                 "WHERE users.email = $1 AND published > now() - interval '1 month' " \
-                                 "ORDER BY published DESC LIMIT $2 OFFSET $3", user.email, limit, offset, as: ChannelVideo)
+                                 "WHERE users.email = $1 AND published > $2 " \
+                                 "ORDER BY published DESC LIMIT $3 OFFSET $4", user.email, dlim, limit, offset, as: ChannelVideo)
       end
     end
 

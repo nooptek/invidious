@@ -45,10 +45,10 @@ module Invidious::Search
           to_tsvector(cv.author) AS document
           FROM channel_videos cv
           JOIN users ON cv.ucid = any(users.subscriptions)
-          WHERE users.email = $1 AND published > now() - interval '1 month'
+          WHERE users.email = $1 AND published > $2
           ORDER BY published
-        ) v_search WHERE v_search.document @@ plainto_tsquery($2) LIMIT 20 OFFSET $3;",
-        user.email, query.text, (query.page - 1) * 20,
+        ) v_search WHERE v_search.document @@ plainto_tsquery($3) LIMIT 20 OFFSET $4;",
+        user.email, Time.utc - 1.month, query.text, (query.page - 1) * 20,
         as: ChannelVideo
       )
     end

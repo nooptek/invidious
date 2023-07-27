@@ -16,9 +16,9 @@ class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
     loop do
       request = <<-SQL
         SELECT id FROM channels
-        WHERE CURRENT_TIMESTAMP - subscribed > interval '4 days' OR subscribed IS NULL
+        WHERE subscribed < $1 OR subscribed IS NULL
       SQL
-      PG_DB.query_all(request, as: String).each do |ucid|
+      PG_DB.query_all(request, Time.utc - 4.days, as: String).each do |ucid|
         if active_fibers >= max_fibers.as(Int32)
           if active_channel.receive
             active_fibers -= 1

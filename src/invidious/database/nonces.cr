@@ -20,10 +20,10 @@ module Invidious::Database::Nonces
   def delete_expired
     request = <<-SQL
       DELETE FROM nonces
-      WHERE expire < now()
+      WHERE expire < $1
     SQL
 
-    PG_DB.exec(request)
+    PG_DB.exec(request, Time.utc)
   end
 
   # -------------------

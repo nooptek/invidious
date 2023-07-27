@@ -6,7 +6,7 @@ module Invidious::Database::Migrations
       conn.exec <<-SQL
       CREATE TABLE IF NOT EXISTS users
       (
-        updated timestamp with time zone,
+        updated text,
         notifications text[],
         subscriptions text[],
         email text NOT NULL,

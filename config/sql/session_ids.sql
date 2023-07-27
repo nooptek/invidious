@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS session_ids
 (
   id text NOT NULL,
   email text,
-  issued timestamp with time zone,
+  issued text,
   CONSTRAINT session_ids_pkey PRIMARY KEY (id)
 );
 

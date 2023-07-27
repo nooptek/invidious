@@ -6,13 +6,13 @@ CREATE TABLE IF NOT EXISTS channel_videos
 (
   id text NOT NULL,
   title text,
-  published timestamp with time zone,
-  updated timestamp with time zone,
+  published text,
+  updated text,
   ucid text,
   author text,
   length_seconds integer,
   live_now boolean,
-  premiere_timestamp timestamp with time zone,
+  premiere_timestamp text,
   views bigint,
   CONSTRAINT channel_videos_id_key UNIQUE (id)
 );

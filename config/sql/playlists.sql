@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS playlists
     author text,
     description text,
     video_count integer,
-    created timestamptz,
-    updated timestamptz,
+    created text,
+    updated text,
     privacy privacy,
     index int8[]
 );

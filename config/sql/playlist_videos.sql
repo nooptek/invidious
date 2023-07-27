@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS playlist_videos
     author text,
     ucid text,
     length_seconds integer,
-    published timestamptz,
+    published text,
     plid text references playlists(id),
     index int8,
     live_now boolean,

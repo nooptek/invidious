@@ -8,9 +8,9 @@ module Invidious::Database::Migrations
       (
         id text NOT NULL,
         author text,
-        updated timestamp with time zone,
+        updated text,
         deleted boolean,
-        subscribed timestamp with time zone,
+        subscribed text,
         CONSTRAINT channels_id_key UNIQUE (id)
       );
       SQL

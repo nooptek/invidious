@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS nonces
 (
   nonce text,
-  expire timestamp with time zone,
+  expire text,
   CONSTRAINT nonces_id_key UNIQUE (nonce)
 );
 

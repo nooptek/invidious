@@ -8,7 +8,7 @@ module Invidious::Database::Migrations
       (
         id text NOT NULL,
         info text,
-        updated timestamp with time zone,
+        updated text,
         CONSTRAINT videos_pkey PRIMARY KEY (id)
       );
       SQL

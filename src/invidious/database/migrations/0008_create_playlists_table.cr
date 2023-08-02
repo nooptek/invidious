@@ -14,7 +14,7 @@ module Invidious::Database::Migrations
         created text,
         updated text,
         privacy text check(privacy in ('Public', 'Unlisted', 'Private')),
-        index int8[]
+        [index] int8[]
       );
       SQL
     end

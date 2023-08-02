@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS playlist_videos
     length_seconds integer,
     published text,
     plid text references playlists(id),
-    index int8,
+    [index] int8,
     live_now boolean,
-    PRIMARY KEY (index,plid)
+    PRIMARY KEY ([index],plid)
 );

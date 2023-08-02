@@ -70,8 +70,8 @@ module Invidious::Database::Playlists
   def update_video_added(id : String, index : String | Int64)
     request = <<-SQL
       UPDATE playlists
-      SET index = array_append(index, $1),
-          video_count = cardinality(index) + 1,
+      SET [index] = array_append([index], $1),
+          video_count = cardinality([index]) + 1,
           updated = $2
       WHERE id = $3
     SQL
@@ -82,8 +82,8 @@ module Invidious::Database::Playlists
   def update_video_removed(id : String, index : String | Int64)
     request = <<-SQL
       UPDATE playlists
-      SET index = array_remove(index, $1),
-          video_count = cardinality(index) - 1,
+      SET [index] = array_remove([index], $1),
+          video_count = cardinality([index]) - 1,
           updated = $2
       WHERE id = $3
     SQL
@@ -197,7 +197,7 @@ module Invidious::Database::PlaylistVideos
   def delete(index)
     request = <<-SQL
       DELETE FROM playlist_videos
-      WHERE index = $1
+      WHERE [index] = $1
     SQL
 
     PG_DB.exec(request, index)
@@ -220,7 +220,7 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       SELECT * FROM playlist_videos
       WHERE plid = $1
-      ORDER BY array_position($2, index)
+      ORDER BY array_position($2, [index])
       LIMIT $3
       OFFSET $4
     SQL
@@ -230,7 +230,7 @@ module Invidious::Database::PlaylistVideos
 
   def select_index(plid : String, vid : String) : Int64?
     request = <<-SQL
-      SELECT index FROM playlist_videos
+      SELECT [index] FROM playlist_videos
       WHERE plid = $1 AND id = $2
       LIMIT 1
     SQL
@@ -242,7 +242,7 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       SELECT id FROM playlist_videos
       WHERE plid = $1
-      ORDER BY array_position($2, index)
+      ORDER BY array_position($2, [index])
       LIMIT 1
     SQL
 
@@ -253,7 +253,7 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       SELECT id FROM playlist_videos
       WHERE plid = $1
-      ORDER BY array_position($2, index)
+      ORDER BY array_position($2, [index])
       LIMIT $3
     SQL
 

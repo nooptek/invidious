@@ -244,6 +244,14 @@ class Config
       end
     end
 
+    case config.database_url.scheme
+    when "postgres", "postgresql"
+      # everything is supported
+    else
+      puts "Config: database engine #{config.database_url.scheme} is not supported"
+      exit(1)
+    end
+
     return config
   end
 end

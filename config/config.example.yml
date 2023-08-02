@@ -26,7 +26,11 @@ db:
 ## and append the 'host' parameter. E.g:
 ##   postgres://kemal:kemal@/invidious?host=/var/run/postgresql
 ##
-## Accepted values: a postgres:// URI
+## Accepted values:
+##   postgres://user:password@host:port/dbname
+##   sqlite3://db.sqlite3
+##   sqlite3:// # use transient memory
+##
 ## Default: postgres://kemal:kemal@localhost:5432/invidious
 ##
 #database_url: postgres://kemal:kemal@localhost:5432/invidious

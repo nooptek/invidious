@@ -245,6 +245,25 @@ class Config
     case config.database_url.scheme
     when "postgres", "postgresql"
       # everything is supported
+    when "sqlite3"
+      # concurrent read and write on the same database is not supported
+      # and TEMP tables are not shared among connections
+      config.database_url.query = "max_pool_size=1&checkout_timeout=.5"
+      if !config.check_tables
+        # tables stored as TEMP must be re-created as each invidious start
+        puts "Config: force enable check tables"
+        config.check_tables = true
+      end
+      if config.registration_enabled
+        # TODO make all tables work
+        puts "Config: force disable registration"
+        config.registration_enabled = false
+      end
+      if config.login_enabled
+        # TODO make all tables work
+        puts "Config: force disable login"
+        config.login_enabled = false
+      end
     else
       puts "Config: database engine #{config.database_url.scheme} is not supported"
       exit(1)

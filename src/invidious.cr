@@ -204,7 +204,9 @@ if CONFIG.popular_enabled
 end
 
 CONNECTION_CHANNEL = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)
-Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL, CONFIG.database_url)
+if CONFIG.enable_user_notifications
+  Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL, CONFIG.database_url)
+end
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
 

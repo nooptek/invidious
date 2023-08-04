@@ -254,15 +254,15 @@ class Config
         puts "Config: force enable check tables"
         config.check_tables = true
       end
-      if config.registration_enabled
-        # TODO make all tables work
-        puts "Config: force disable registration"
-        config.registration_enabled = false
-      end
-      if config.login_enabled
-        # TODO make all tables work
-        puts "Config: force disable login"
-        config.login_enabled = false
+      if "#{config.database_url.host}#{config.database_url.path}".empty?
+        if config.registration_enabled
+          puts "Config: force disable registration on transient memory"
+          config.registration_enabled = false
+        end
+        if config.login_enabled
+          puts "Config: force disable login on transient memory"
+          config.login_enabled = false
+        end
       end
     else
       puts "Config: database engine #{config.database_url.scheme} is not supported"

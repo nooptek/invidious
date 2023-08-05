@@ -33,7 +33,6 @@ struct YoutubeConnectionPool
       conn = HTTP::Client.new(url)
 
       conn.family = CONFIG.force_resolve
-      conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
       response = yield conn
     ensure
@@ -47,7 +46,6 @@ struct YoutubeConnectionPool
     DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
       conn = HTTP::Client.new(url)
       conn.family = CONFIG.force_resolve
-      conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
       conn
     end

@@ -111,10 +111,20 @@ module Invidious::Database::ChannelVideos
       ON CONFLICT (id) DO UPDATE
       SET title = $2, published = $3, updated = $4, ucid = $5,
           author = $6, length_seconds = $7, live_now = $8, #{last_items}
-      RETURNING (xmax=0) AS was_insert
     SQL
 
-    return PG_DB.query_one(request, *video.to_tuple, as: Bool)
+    was_insert = false
+    PG_DB.transaction do |t|
+      cx = t.connection
+
+      old_rows = cx.query_one("SELECT count(*) FROM channel_videos", as: Int64)
+      cx.exec(request, *video.to_tuple)
+      new_rows = cx.query_one("SELECT count(*) FROM channel_videos", as: Int64)
+
+      was_insert = (new_rows != old_rows)
+    end
+
+    return was_insert
   end
 
   # -------------------

@@ -1,4 +1,5 @@
 require "pg"
+require "sqlite3"
 
 module Invidious::Database
   extend self
@@ -122,8 +123,11 @@ module Invidious::Database
     column_array = [] of String
     PG_DB.query("SELECT * FROM #{table_name} LIMIT 0") do |rs|
       rs.column_count.times do |i|
-        column = rs.as(PG::ResultSet).field(i)
-        column_array << column.name
+        column_array << case rs
+        when SQLite3::ResultSet then rs.column_name(i)
+        when PG::ResultSet then rs.field(i).name
+        else raise "Invalid DB result type"
+        end
       end
     end
 

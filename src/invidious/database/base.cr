@@ -35,8 +35,17 @@ module Invidious::Database
     rescue ex
       LOGGER.info("check_table: check_table: CREATE TABLE #{table_name}")
 
+      sql = File.read("#{SQL_DATA_DIR}/sql/#{table_name}.sql")
       PG_DB.using_connection do |conn|
-        conn.as(PG::Connection).exec_all(File.read("#{SQL_DATA_DIR}/sql/#{table_name}.sql"))
+        case conn
+        when PG::Connection
+          conn.exec_all(sql)
+        when SQLite3::Connection
+          sql = sql.gsub(/\bUNLOGGED\b/i, "TEMP")
+          conn.exec(sql)
+        else
+          raise "Unsupported DB engine"
+        end
       end
     end
 

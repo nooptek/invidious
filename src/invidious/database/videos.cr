@@ -31,6 +31,14 @@ module Invidious::Database::Videos
     PG_DB.exec(request)
   end
 
+  def delete_all
+    request = <<-SQL
+      DELETE FROM videos
+    SQL
+
+    PG_DB.exec(request)
+  end
+
   def update(video : Video)
     request = <<-SQL
       UPDATE videos

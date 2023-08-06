@@ -60,6 +60,13 @@
                                 <% end %>
                             </a>
                         </div>
+                        <% if CONFIG.admins.includes? env.get("user").as(Invidious::User).email %>
+                            <div class="pure-u-1-4">
+                                <a title="<%= translate(locale, "Flush videos cache") %>" href="/flushvidcache?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                                    <i class="icon ion-ios-thunderstorm"></i>
+                                </a>
+                            </div>
+                        <% end %>
                         <div class="pure-u-1-4">
                             <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
                                 <i class="icon ion-ios-cog"></i>

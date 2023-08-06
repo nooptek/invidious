@@ -33,6 +33,8 @@ module Invidious::Routing
       self.register_user_routes
       self.register_feed_routes
 
+      self.register_maintenance_routes
+
       # Support push notifications via PubSubHubbub
       get "/feed/webhook/:token", Routes::Feeds, :push_notifications_get
       post "/feed/webhook/:token", Routes::Feeds, :push_notifications_post
@@ -106,6 +108,10 @@ module Invidious::Routing
     get "/feed/private", Routes::Feeds, :rss_private
     get "/feed/playlist/:plid", Routes::Feeds, :rss_playlist
     get "/feeds/videos.xml", Routes::Feeds, :rss_videos
+  end
+
+  def register_maintenance_routes
+    get "/flushvidcache", Routes::MaintenanceRoute, :flushvidcache
   end
 
   # -------------------

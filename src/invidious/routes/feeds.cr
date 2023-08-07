@@ -51,13 +51,18 @@ module Invidious::Routes::Feeds
     region = env.params.query["region"]?
     region ||= env.get("preferences").as(Preferences).region
 
-    begin
-      trending, plid = fetch_trending(trending_type, region, locale)
-    rescue ex
-      return error_template(500, ex)
-    end
+    if CONFIG.trending_enabled
+      begin
+        trending, plid = fetch_trending(trending_type, region, locale)
+      rescue ex
+        return error_template(500, ex)
+      end
 
-    templated "feeds/trending"
+      templated "feeds/trending"
+    else
+      message = translate(locale, "The Trending feed has been disabled by the administrator.")
+      templated "message"
+    end
   end
 
   def self.subscriptions(env)

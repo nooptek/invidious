@@ -438,12 +438,8 @@ module Invidious::Routes::Feeds
 
         if CONFIG.enable_user_notifications
           # Deliver notifications to `/api/v1/auth/notifications`
-          payload = {
-            "topic"     => video.ucid,
-            "videoId"   => video.id,
-            "published" => published.to_unix,
-          }.to_json
-          PG_DB.exec("NOTIFY notifications, E'#{payload}'")
+          payload = NotificationPayload.new(video.ucid, video.id, published)
+          CONNECTION_CHANNEL.send({NotifierAction::Notify, payload})
         end
 
         video = ChannelVideo.new({

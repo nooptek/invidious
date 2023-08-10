@@ -22,6 +22,25 @@ struct Annotation
   property annotations : String
 end
 
+enum NotifierAction
+  Subscribe
+  Unsubscribe
+  Notify
+end
+
+struct NotificationPayload
+  include JSON::Serializable
+
+  def initialize(@topic, @id, @published)
+  end
+
+  property topic : String
+  property id : String
+  property published : Time
+end
+
+alias NotifierParam = {NotifierAction, NotificationPayload | Channel(NotificationPayload)}
+
 def html_to_content(description_html : String)
   description = description_html.gsub(/(<br>)|(<br\/>)/, {
     "<br>":  "\n",
@@ -57,8 +76,8 @@ def cache_annotation(id, annotations)
 end
 
 def create_notification_stream(env, topics, connection_channel)
-  connection = Channel(PQ::Notification).new(8)
-  connection_channel.send({true, connection})
+  connection = Channel(NotificationPayload).new(8)
+  connection_channel.send({NotifierAction::Subscribe, connection})
 
   locale = env.get("preferences").as(Preferences).locale
 
@@ -122,19 +141,14 @@ def create_notification_stream(env, topics, connection_channel)
   spawn do
     begin
       loop do
-        event = connection.receive
+        notification = connection.receive
 
-        notification = JSON.parse(event.payload)
-        topic = notification["topic"].as_s
-        video_id = notification["videoId"].as_s
-        published = notification["published"].as_i64
-
-        if !topics.try &.includes? topic
+        if !topics.try &.includes? notification.topic
           next
         end
 
-        video = get_video(video_id)
-        video.published = Time.unix(published)
+        video = get_video(notification.id)
+        video.published = notification.published
         response = JSON.parse(video.to_json(locale, nil))
 
         env.response.puts "id: #{id}"
@@ -146,7 +160,7 @@ def create_notification_stream(env, topics, connection_channel)
       end
     rescue ex
     ensure
-      connection_channel.send({false, connection})
+      connection_channel.send({NotifierAction::Unsubscribe, connection})
     end
   end
 
@@ -160,7 +174,7 @@ def create_notification_stream(env, topics, connection_channel)
     end
   rescue ex
   ensure
-    connection_channel.send({false, connection})
+    connection_channel.send({NotifierAction::Unsubscribe, connection})
   end
 end
 

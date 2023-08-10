@@ -24,7 +24,7 @@ module Invidious::Routes::Login
     captcha_type = env.params.query["captcha"]?
     captcha_type ||= "image"
 
-    templated "user/login"
+    templated "user/login", navbar_search: (!CONFIG.login_required || user)
   end
 
   def self.login(env)

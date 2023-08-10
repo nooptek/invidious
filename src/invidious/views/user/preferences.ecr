@@ -303,6 +303,11 @@
                 </div>
 
                 <div class="pure-control-group">
+                    <label for="login_required"><%= translate(locale, "Login required: ") %></label>
+                    <input name="login_required" id="login_required" type="checkbox" <% if CONFIG.login_required %>checked<% end %>>
+                </div>
+
+                <div class="pure-control-group">
                     <label for="registration_enabled"><%= translate(locale, "Registration enabled: ") %></label>
                     <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if CONFIG.registration_enabled %>checked<% end %>>
                 </div>

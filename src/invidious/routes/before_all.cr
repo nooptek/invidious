@@ -1,22 +1,27 @@
 module Invidious::Routes::BeforeAll
   def self.handle(env)
-    preferences = Preferences.from_json("{}")
+    preferences = env.get?("preferences").try &.as(Preferences)
 
-    begin
-      if prefs_cookie = env.request.cookies["PREFS"]?
-        preferences = Preferences.from_json(URI.decode_www_form(prefs_cookie.value))
-      else
-        if language_header = env.request.headers["Accept-Language"]?
-          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
-            preferences.locale = language.header
+    unless preferences
+      preferences = Preferences.from_json("{}")
+
+      begin
+        if prefs_cookie = env.request.cookies["PREFS"]?
+          preferences = Preferences.from_json(URI.decode_www_form(prefs_cookie.value))
+        else
+          if language_header = env.request.headers["Accept-Language"]?
+            if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+              preferences.locale = language.header
+            end
           end
         end
+      rescue
+        preferences = Preferences.from_json("{}")
       end
-    rescue
-      preferences = Preferences.from_json("{}")
+
+      env.set "preferences", preferences
     end
 
-    env.set "preferences", preferences
     env.response.headers["X-XSS-Protection"] = "1; mode=block"
     env.response.headers["X-Content-Type-Options"] = "nosniff"
 
@@ -61,44 +66,7 @@ module Invidious::Routes::BeforeAll
       env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     end
 
-    return if {
-                "/sb/",
-                "/vi/",
-                "/s_p/",
-                "/yts/",
-                "/ggpht/",
-                "/api/manifest/",
-                "/videoplayback",
-                "/latest_version",
-                "/download",
-              }.any? { |r| env.request.resource.starts_with? r }
-
-    if env.request.cookies.has_key? "SID"
-      sid = env.request.cookies["SID"].value
-
-      if sid.starts_with? "v1:"
-        raise "Cannot use token as SID"
-      end
-
-      if email = Database::SessionIDs.select_email(sid)
-        user = Database::Users.select!(email: email)
-        csrf_token = generate_response(sid, {
-          ":authorize_token",
-          ":playlist_ajax",
-          ":signout",
-          ":subscription_ajax",
-          ":token_ajax",
-          ":watch_ajax",
-        }, HMAC_KEY, 1.week)
-
-        preferences = user.preferences
-        env.set "preferences", preferences
-
-        env.set "sid", sid
-        env.set "csrf_token", csrf_token
-        env.set "user", user
-      end
-    end
+    return if env.get? "unregistered_path"
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
     thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s

@@ -263,6 +263,14 @@ https_only: false
 #login_enabled: true
 
 ##
+## Require users to log-in.
+##
+## Accepted values: true, false
+## Default: false
+##
+#login_required: false
+
+##
 ## Enable/Disable the captcha challenge on the login page.
 ##
 ## Note: this is a basic captcha challenge that doesn't

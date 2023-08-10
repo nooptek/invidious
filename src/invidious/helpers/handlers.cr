@@ -87,11 +87,12 @@ end
 
 class AuthHandler < Kemal::Handler
   {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-    only ["/api/v1/auth/*"], {{method}}
+    only ["/api/v1/*"], {{method}}
   {% end %}
+  exclude ["/feed/webhook/*", "/feed/private"]
 
-  def call(env)
-    return call_next env unless only_match? env
+  private def call_api(env)
+    return call_next env unless CONFIG.login_required || env.request.resource.starts_with? "/api/v1/auth/"
 
     begin
       if token = env.request.headers["Authorization"]?
@@ -130,6 +131,70 @@ class AuthHandler < Kemal::Handler
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 403
       env.response.print error_message
+    end
+  end
+
+  private def call_other(env)
+    unregistered_path = {
+      "/sb/",
+      "/vi/",
+      "/s_p/",
+      "/yts/",
+      "/ggpht/",
+      "/api/manifest/",
+      "/videoplayback",
+      "/latest_version",
+      "/download",
+    }
+
+    if unregistered_path.any? { |r| env.request.resource.starts_with? r }
+      env.set "unregistered_path", true
+      return call_next env if !CONFIG.login_required
+    end
+
+    if env.request.cookies.has_key? "SID"
+      sid = env.request.cookies["SID"].value
+
+      if sid.starts_with? "v1:"
+        raise "Cannot use token as SID"
+      end
+
+      if email = Invidious::Database::SessionIDs.select_email(sid)
+        user = Invidious::Database::Users.select!(email: email)
+        csrf_token = generate_response(sid, {
+          ":authorize_token",
+          ":playlist_ajax",
+          ":signout",
+          ":subscription_ajax",
+          ":token_ajax",
+          ":watch_ajax",
+        }, HMAC_KEY, 1.week)
+
+        preferences = user.preferences
+        env.set "preferences", preferences
+
+        env.set "sid", sid
+        env.set "csrf_token", csrf_token
+        env.set "user", user
+      end
+    end
+
+    if CONFIG.login_required && !env.get?("user") && env.request.path != "/login"
+      env.response.headers["Location"] = "/login"
+      env.response.status_code = 302
+    else
+      call_next env
+    end
+  end
+
+  def call(env)
+    if exclude_match? env
+      # those paths already have their own verification mechanisms
+      call_next env
+    elsif only_match? env
+      call_api env
+    else
+      call_other env
     end
   end
 end

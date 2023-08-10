@@ -210,6 +210,10 @@ module Invidious::Routes::PreferencesRoute
         login_enabled ||= "off"
         CONFIG.login_enabled = login_enabled == "on"
 
+        login_required = env.params.body["login_required"]?.try &.as(String)
+        login_required ||= "off"
+        CONFIG.login_required = login_required == "on"
+
         registration_enabled = env.params.body["registration_enabled"]?.try &.as(String)
         registration_enabled ||= "off"
         CONFIG.registration_enabled = registration_enabled == "on"

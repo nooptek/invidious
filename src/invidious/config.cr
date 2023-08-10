@@ -94,6 +94,7 @@ class Config
   property trending_enabled : Bool = true
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
+  property login_required : Bool = false
   property registration_enabled : Bool = true
   property statistics_enabled : Bool = false
   property admins : Array(String) = [] of String

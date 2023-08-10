@@ -75,7 +75,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   # proposed above the error message, just worded differently.
   next_steps = ""
 
-  return templated "error"
+  return templated "error", navbar_search: (!CONFIG.login_required || env.get?("user"))
 end
 
 def error_template_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
@@ -87,7 +87,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
   error_message = translate(locale, message)
   next_steps = error_redirect_helper(env)
 
-  return templated "error"
+  return templated "error", navbar_search: (!CONFIG.login_required || env.get?("user"))
 end
 
 # -------------------

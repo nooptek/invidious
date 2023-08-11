@@ -1,9 +1,5 @@
 class Invidious::Jobs::PullPopularVideosJob < Invidious::Jobs::BaseJob
   POPULAR_VIDEOS = Atomic.new([] of ChannelVideo)
-  private getter db : DB::Database
-
-  def initialize(@db)
-  end
 
   def begin
     loop do

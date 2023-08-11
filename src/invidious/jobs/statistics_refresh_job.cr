@@ -27,9 +27,7 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     "playback" => {} of String => Int64 | Float64,
   }
 
-  private getter db : DB::Database
-
-  def initialize(@db, @software_config : Hash(String, String))
+  def initialize(@software_config : Hash(String, String))
   end
 
   def begin

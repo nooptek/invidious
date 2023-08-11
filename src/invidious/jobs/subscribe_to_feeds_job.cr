@@ -1,8 +1,7 @@
 class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
-  private getter db : DB::Database
   private getter hmac_key : String
 
-  def initialize(@db, @hmac_key)
+  def initialize(@hmac_key)
   end
 
   def begin
@@ -15,7 +14,7 @@ class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
     active_channel = ::Channel(Bool).new
 
     loop do
-      db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > interval '4 days' OR subscribed IS NULL") do |rs|
+      PG_DB.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > interval '4 days' OR subscribed IS NULL") do |rs|
         rs.each do
           ucid = rs.read(String)
 

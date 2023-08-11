@@ -179,7 +179,7 @@ Invidious::Database.check_integrity(CONFIG)
 # Start jobs
 
 if CONFIG.channel_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
+  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new
 end
 
 if CONFIG.feed_threads > 0
@@ -192,15 +192,15 @@ if CONFIG.decrypt_polling
 end
 
 if CONFIG.statistics_enabled
-  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, SOFTWARE)
+  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(SOFTWARE)
 end
 
 if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || (CONFIG.use_pubsub_feeds.is_a?(Int32) && CONFIG.use_pubsub_feeds.as(Int32) > 0)
-  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
+  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(HMAC_KEY)
 end
 
 if CONFIG.popular_enabled
-  Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+  Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new
 end
 
 CONNECTION_CHANNEL = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)

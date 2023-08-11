@@ -96,6 +96,11 @@ module Invidious::Routes::Account
 
     user = user.as(User)
     sid = sid.as(String)
+
+    if CONFIG.admins.includes? user.email
+      return error_template(400, "Admin account cannot be deleted.")
+    end
+
     csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
 
     templated "user/delete_account"
@@ -121,6 +126,10 @@ module Invidious::Routes::Account
       validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
+    end
+
+    if CONFIG.admins.includes? user.email
+      return error_template(400, "Admin account cannot be deleted.")
     end
 
     view_name = "subscriptions_#{sha256(user.email)}"

@@ -504,5 +504,20 @@
     "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)",
     "channel_tab_releases_label": "Parutions",
     "channel_tab_podcasts_label": "Émissions audio",
-    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)"
+    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)",
+    "preferences_category_sponsorblock": "SponsorBlock",
+    "preferences_sponsorblock_notice": "Veuillez noter que le support natif sera désactivé si l'extension navigateur est détectée",
+    "preferences_sponsorblock_enable": "Activer : ",
+    "preferences_sponsorblock_category_sponsor": "Sponsorisé : ",
+    "preferences_sponsorblock_category_selfpromo": "Autopromotion : ",
+    "preferences_sponsorblock_category_interaction": "Rappel d'intéraction : ",
+    "preferences_sponsorblock_category_intro": "Introduction : ",
+    "preferences_sponsorblock_category_outro": "Écran de fin : ",
+    "preferences_sponsorblock_category_preview": "Prévisualisation : ",
+    "preferences_sponsorblock_category_music_offtopic": "Musique: segment non musical : ",
+    "preferences_sponsorblock_category_filler": "Digression : ",
+    "preferences_sponsorblock_action_none": "Désactiver",
+    "preferences_sponsorblock_action_show": "Afficher dans la barre de progression du lecteur",
+    "preferences_sponsorblock_action_skipmanu": "Passer le segment manuellement",
+    "preferences_sponsorblock_action_skipauto": "Passer le segment automatiquement"
 }

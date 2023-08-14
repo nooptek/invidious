@@ -1,0 +1,20 @@
+<% if preferences.sponsorblock_enable %>
+<style id="ivsb_style" type="text/css">
+.ivsb_progressbar {
+    height: 100%;
+    width: 100%;
+}
+.ivsb_segment {
+    height: 100%;
+    position: absolute;
+    opacity: .7;
+    z-index: 1;
+}
+<% SB_CATEGORIES.each_index do |i| %>
+.ivsb_<%= SB_CATEGORIES[i] %> {
+    background-color: <%= SB_COLORS[i] %>;
+}
+<% end %>
+</style>
+<script src="/js/sponsorblock.js?v=<%= ASSET_COMMIT %>"></script>
+<% end %>

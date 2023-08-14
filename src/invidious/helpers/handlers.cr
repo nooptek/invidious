@@ -145,6 +145,7 @@ class AuthHandler < Kemal::Handler
       "/videoplayback",
       "/latest_version",
       "/download",
+      "/ivsb/",
     }
 
     if unregistered_path.any? { |r| env.request.resource.starts_with? r }

@@ -56,6 +56,12 @@ struct Preferences
   property volume : Int32 = CONFIG.default_user_preferences.volume
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
 
+  property sponsorblock_enable : Bool = CONFIG.default_user_preferences.sponsorblock_enable
+
+  @[JSON::Field(converter: Preferences::StringToHash)]
+  @[YAML::Field(converter: Preferences::StringToHash)]
+  property sponsorblock_actions : Hash(String, String) = CONFIG.default_user_preferences.sponsorblock_actions
+
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value
@@ -269,6 +275,66 @@ struct Preferences
       else
         node.raise "Expected scalar, not #{node.class}"
       end
+    end
+  end
+
+  module StringToHash
+    def self.to_json(value : Hash(String, String), json : JSON::Builder)
+      json.object do
+        value.each do |k, v|
+          json.field k, v
+        end
+      end
+    end
+
+    def self.from_json(value : JSON::PullParser) : Hash(String, String)
+      begin
+        result = {} of String => String
+        value.read_object do |k|
+          k = HTML.escape(k[0, 100])
+          v = HTML.escape(value.read_string[0, 100])
+          result[k] = v
+        end
+      rescue ex
+        result = {} of String => String
+      end
+
+      result
+    end
+
+    def self.to_yaml(value : Hash(String, String), yaml : YAML::Nodes::Builder)
+      yaml.mapping do
+        value.each do |k, v|
+          yaml.scalar k
+          yaml.scalar v
+        end
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Hash(String, String)
+      begin
+        unless node.is_a?(YAML::Nodes::Mapping)
+          node.raise "Expected sequence, not #{node.class}"
+        end
+
+        result = {} of String => String
+        node.nodes.each do |k, v|
+          unless k.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{item.class}"
+          end
+          unless v.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{item.class}"
+          end
+
+          k = HTML.escape(k.value[0, 100])
+          v = HTML.escape(v.value[0, 100])
+          result[k] = v
+        end
+      rescue ex
+        result = {} of String => String
+      end
+
+      result
     end
   end
 end

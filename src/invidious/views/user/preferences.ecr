@@ -196,6 +196,28 @@
                 </div>
             <% end %>
 
+            <legend><%= translate(locale, "preferences_category_sponsorblock") %></legend>
+
+            <div class="pure-control-group">
+                <%= translate(locale, "preferences_sponsorblock_notice") %>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="ivsb_enable"><%= translate(locale, "preferences_sponsorblock_enable") %></label>
+                <input name="ivsb_enable" id="ivsb_enable" type="checkbox" <% if preferences.sponsorblock_enable %>checked<% end %>>
+            </div>
+
+            <% SB_CATEGORIES.each do |cat| %>
+                <div class="pure-control-group">
+                    <label for="ivsb_<%= cat %>"><%= translate(locale, "preferences_sponsorblock_category_#{cat}") %></label>
+                    <select name="ivsb_<%= cat %>" id="ivsb_<%= cat %>">
+                        <% SB_ACTIONS.each do |action| %>
+                            <option value="<%= action %>" <% if preferences.sponsorblock_actions[cat] == action %> selected <% end %>><%= translate(locale, "preferences_sponsorblock_action_#{action}") %></option>
+                        <% end %>
+                    </select>
+                </div>
+            <% end %>
+
             <legend><%= translate(locale, "preferences_category_misc") %></legend>
 
             <div class="pure-control-group">

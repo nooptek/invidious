@@ -915,3 +915,50 @@ default_user_preferences:
   ## Default: false
   ##
   #extend_desc: false
+
+  # -----------------------------
+  #  SponsorBlock
+  # -----------------------------
+
+  ##
+  ## Enable basic SponsorBlock functionnality.
+  ## Currently only showing and skipping video segments is supported,
+  ## submission of new segments is not.
+  ## You can install the browser plugin to get all the features: https://sponsor.ajay.app/
+  ## Note that native SponsorBlock support in Invidious will be automatically
+  ## disabled if the browser plugin is detected.
+  ##
+  ## Accepted values: true, false
+  ## Default: true
+  ##
+  #sponsorblock_enable: true
+
+  ##
+  ## SponsorBlock actions to perform on video segments
+  ##
+  ## Accepted values: dict of category: action
+  ##
+  ## Each category can be one of:
+  ##   "sponsor": sponsored
+  ##   "selfpromo": self promotion
+  ##   "interaction": interaction reminder
+  ##   "intro": introduction
+  ##   "outro": endcards
+  ##   "preview": preview
+  ##   "music_offtopic": non-music section in music video
+  ##   "filler": filler (jokes, ...)
+  ##
+  ## Each action can be one of:
+  ##   "none": do nothing
+  ##   "show": display in player progress bar
+  ##   "skipauto": skip segment automatically
+  ##
+  #sponsorblock_actions:
+  #  sponsor: skipauto
+  #  selfpromo: skipauto
+  #  interaction: skipauto
+  #  intro: show
+  #  outro: show
+  #  preview: show
+  #  music_offtopic: none
+  #  filler: none

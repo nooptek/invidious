@@ -80,6 +80,7 @@ ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")
 YT_URL      = URI.parse("https://www.youtube.com")
+SB_URL      = URI.parse("https://sponsor.ajay.app")
 HOST_URL    = make_host_url(Kemal.config)
 
 CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
@@ -104,6 +105,10 @@ SOFTWARE = {
   "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
   "branch"  => "#{CURRENT_BRANCH}",
 }
+
+SB_CATEGORIES = {"sponsor", "selfpromo", "interaction", "intro", "outro", "preview", "music_offtopic", "filler"}
+SB_COLORS = {"#00d400", "#ffff00", "#cc00ff", "#00ffff", "#0202ed", "#008fd6", "#ff9900", "#7300ff"}
+SB_ACTIONS = {"none", "show", "skipauto"}
 
 YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size)
 

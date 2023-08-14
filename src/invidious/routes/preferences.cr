@@ -82,6 +82,17 @@ module Invidious::Routes::PreferencesRoute
     show_nick ||= "off"
     show_nick = show_nick == "on"
 
+    sponsorblock_enable = env.params.body["ivsb_enable"]?.try &.as(String)
+    sponsorblock_enable ||= "off"
+    sponsorblock_enable = sponsorblock_enable == "on"
+
+    sponsorblock_actions = {} of String => String
+    SB_CATEGORIES.each do |cat|
+      action = env.params.body["ivsb_#{cat}"]?.try &.as(String)
+      action = CONFIG.default_user_preferences.sponsorblock_actions[cat] unless action && action.in?(SB_ACTIONS)
+      sponsorblock_actions[cat] = action
+    end
+
     comments = [] of String
     2.times do |i|
       comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.comments[i])
@@ -175,6 +186,8 @@ module Invidious::Routes::PreferencesRoute
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
+      sponsorblock_enable:         sponsorblock_enable,
+      sponsorblock_actions:        sponsorblock_actions,
     }.to_json)
 
     if user = env.get? "user"

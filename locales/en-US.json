@@ -499,5 +499,20 @@
     "carousel_go_to": "Go to slide `x`",
     "channel_has_no_posts": "This channel hasn't posted yet",
     "users_count": "{{count}} user",
-    "users_count_plural": "{{count}} users"
+    "users_count_plural": "{{count}} users",
+    "preferences_category_sponsorblock": "SponsorBlock",
+    "preferences_sponsorblock_notice": "Note that native support will be disabled if the browser plugin is detected",
+    "preferences_sponsorblock_enable": "Enable: ",
+    "preferences_sponsorblock_category_sponsor": "Sponsored: ",
+    "preferences_sponsorblock_category_selfpromo": "Self promotion: ",
+    "preferences_sponsorblock_category_interaction": "Interaction reminder: ",
+    "preferences_sponsorblock_category_intro": "Introduction: ",
+    "preferences_sponsorblock_category_outro": "Endcards: ",
+    "preferences_sponsorblock_category_preview": "Preview: ",
+    "preferences_sponsorblock_category_music_offtopic": "Music: non-music section: ",
+    "preferences_sponsorblock_category_filler": "Filler: ",
+    "preferences_sponsorblock_action_none": "Disable",
+    "preferences_sponsorblock_action_show": "Display in player progress bar",
+    "preferences_sponsorblock_action_skipmanu": "Skip segment manually",
+    "preferences_sponsorblock_action_skipauto": "Skip segment automatically"
 }

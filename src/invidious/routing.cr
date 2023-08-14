@@ -35,6 +35,8 @@ module Invidious::Routing
 
       self.register_maintenance_routes
 
+      self.register_sponsorblock_routes
+
       # Support push notifications via PubSubHubbub
       get "/feed/webhook/:token", Routes::Feeds, :push_notifications_get
       post "/feed/webhook/:token", Routes::Feeds, :push_notifications_post
@@ -115,6 +117,10 @@ module Invidious::Routing
 
   def register_maintenance_routes
     get "/flushvidcache", Routes::MaintenanceRoute, :flushvidcache
+  end
+
+  def register_sponsorblock_routes
+    get "/ivsb/:id", Routes::SponsorBlock, :get
   end
 
   # -------------------

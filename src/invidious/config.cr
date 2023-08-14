@@ -44,6 +44,17 @@ struct ConfigPreferences
   property vr_mode : Bool = true
   property show_nick : Bool = true
   property save_player_pos : Bool = false
+  property sponsorblock_enable : Bool = true
+  property sponsorblock_actions : Hash(String, String) = {
+    "sponsor" => "skipauto",
+    "selfpromo" => "skipauto",
+    "interaction" => "skipauto",
+    "intro" => "show",
+    "outro" => "show",
+    "preview" => "show",
+    "music_offtopic" => "none",
+    "filler" => "none",
+  }
 
   def to_tuple
     {% begin %}

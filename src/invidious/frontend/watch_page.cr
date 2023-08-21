@@ -79,9 +79,14 @@ module Invidious::Frontend::WatchPage
       # DASH audio streams
 
       video_assets.audio_streams.each do |option|
-        value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
+        track = option.as?(Invidious::Videos::AdaptativeAudioTrackStream)
+
+        value = {"itag" => option.itag, "ext" => option.mime_type.split("/")[1]}
+        value["tid"] = track.track_id.not_nil! if track
+        value = value.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
+        str << track.track_name << " - " if track
         str << option.mime_type << " "
         str << option.codec_types[0] << " "
         str << option.audio_channels << "ch "

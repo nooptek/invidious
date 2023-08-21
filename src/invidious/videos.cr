@@ -133,7 +133,16 @@ struct Video
   end
 
   def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
-    audio_streams_raw.sort_by(&.bitrate.// 10000).reverse!
+    audio_streams_raw.sort_by do |stream|
+      if stream.is_a?(Invidious::Videos::AdaptativeAudioTrackStream)
+        isdef = stream.default
+        tid = stream.track_id.not_nil!
+      else
+        isdef = false
+        tid = ""
+      end
+      {stream.bitrate // 10000, isdef.to_unsafe, tid}
+    end.reverse!
   end
 
   # Misc. methods

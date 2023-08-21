@@ -14,10 +14,16 @@
 
                 bitrate = fmt.bitrate // 1000
                 mimetype = HTML.escape(fmt.raw_mime_type)
+                label = "#{bitrate} kbps"
+
+                if fmt.is_a?(Invidious::Videos::AdaptativeAudioTrackStream)
+                  label = "#{fmt.track_name} #{label}"
+                  src_url += "&tid=#{HTML.escape(fmt.track_id.not_nil!)}"
+                end
 
                 selected = (i == 0)
             %>
-                <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %> kbps" selected="<%= selected %>">
+                <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= label %>" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>
                 <source src="<%= src_url %>&local=true" type='<%= mimetype %>' hidequalityoption="true">
                 <% end %>

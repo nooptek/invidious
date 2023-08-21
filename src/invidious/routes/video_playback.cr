@@ -255,6 +255,7 @@ module Invidious::Routes::VideoPlayback
   def self.latest_version(env)
     id = env.params.query["id"]?
     itag = env.params.query["itag"]?.try &.to_i?
+    tid = env.params.query["tid"]?
 
     # Sanity checks
     if id.nil? || id.size != 11 || !id.matches?(/^[\w-]+$/)
@@ -285,7 +286,10 @@ module Invidious::Routes::VideoPlayback
     if itag.nil?
       fmt = video.fmt_stream[-1]?
     else
-      fmt = video.fmt_stream.find(nil, &.itag.== itag) || video.adaptive_fmts.find(nil, &.itag.== itag)
+      fmt = (video.fmt_stream + video.adaptive_fmts).find do |f|
+        t = f.as?(Invidious::Videos::AdaptativeAudioTrackStream)
+        f.itag == itag && (t.try &.track_id) == tid
+      end
     end
 
     if !fmt

@@ -105,6 +105,25 @@ ul.vjs-menu-content::-webkit-scrollbar {
   order: 3;
 }
 
+.vjs-quality-selector .vjs-menu-item {
+  text-transform: none;
+}
+
+.vjs-captions-button .vjs-menu .vjs-menu-content,
+.vjs-audio-button .vjs-menu .vjs-menu-content,
+.vjs-quality-selector .vjs-menu .vjs-menu-content {
+  white-space: nowrap;
+  width: fit-content;
+  min-width: 10em;
+}
+
+.vjs-captions-button .vjs-menu .vjs-menu-content .vjs-menu-item,
+.vjs-audio-button .vjs-menu .vjs-menu-content .vjs-menu-item,
+.vjs-quality-selector .vjs-menu .vjs-menu-content .vjs-menu-item {
+  padding-left: .5em;
+  padding-right: .5em;
+}
+
 .vjs-quality-selector,
 .video-js .vjs-http-source-selector {
   order: 4;

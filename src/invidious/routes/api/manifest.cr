@@ -74,7 +74,18 @@ module Invidious::Routes::API::Manifest
               # However, most players don't support auto quality switching, so we have to trick them
               # into providing a quality selector.
               # See https://github.com/iv-org/invidious/issues/3074 for more details.
-              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: "#{(fmt.bitrate // 1000)} kbps") do
+              props = {
+                "id" => i,
+                "mimeType" => mime_type,
+                "startWithSAP" => 1,
+                "subsegmentAlignment" => true,
+                "label" => "#{fmt.bitrate // 1000} kbps",
+              }
+              if fmt.is_a?(Invidious::Videos::AdaptativeAudioTrackStream)
+                props["lang"] = fmt.track_name
+                props["label"] = "#{fmt.track_name} #{props["label"]}"
+              end
+              xml.element("AdaptationSet", props) do
                 xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
                 xml.element("Representation", id: fmt.itag, codecs: fmt.codecs[0], bandwidth: fmt.bitrate) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: fmt.audio_channels)

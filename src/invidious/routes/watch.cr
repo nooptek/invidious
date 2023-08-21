@@ -326,6 +326,9 @@ module Invidious::Routes::Watch
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
       env.params.query["itag"] = itag.to_s
+      if tid = download_widget["tid"]?
+        env.params.query["tid"] = tid.as_s
+      end
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 

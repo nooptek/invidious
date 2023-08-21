@@ -12,6 +12,9 @@ module Invidious::Routes::API::Manifest
     # we can opt to only add a source to a representation if it has a unique height within that representation
     unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1") } || false
 
+    acodecs = env.params.query["acodecs"]?
+    vcodecs = env.params.query["vcodecs"]?
+
     begin
       video = get_video(id, region: region)
     rescue ex : NotFoundException
@@ -51,8 +54,8 @@ module Invidious::Routes::API::Manifest
       end
     end
 
-    audio_streams = video.audio_streams
-    video_streams = video.video_streams
+    audio_streams = video.audio_streams(acodecs)
+    video_streams = video.video_streams(vcodecs)
 
     # Build the manifest
     return XML.build(indent: "  ", encoding: "UTF-8") do |xml|

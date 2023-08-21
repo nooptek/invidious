@@ -514,5 +514,7 @@
     "preferences_sponsorblock_action_none": "Disable",
     "preferences_sponsorblock_action_show": "Display in player progress bar",
     "preferences_sponsorblock_action_skipmanu": "Skip segment manually",
-    "preferences_sponsorblock_action_skipauto": "Skip segment automatically"
+    "preferences_sponsorblock_action_skipauto": "Skip segment automatically",
+    "preferences_vcodecs_label": "Video codecs: ",
+    "preferences_acodecs_label": "Audio codecs: "
 }

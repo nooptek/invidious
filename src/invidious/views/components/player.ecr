@@ -30,7 +30,9 @@
             <% end %>
         <% else %>
             <% if params.quality == "dash" %>
-                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1" type='application/dash+xml' label="dash">
+                <% vcodecs = preferences.vcodecs.try { |s| "&vcodecs=" + URI.encode_path_segment(s) }.to_s %>
+                <% acodecs = preferences.acodecs.try { |s| "&acodecs=" + URI.encode_path_segment(s) }.to_s %>
+                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1<%= vcodecs %><%= acodecs %>" type="application/dash+xml" label="dash">
             <% end %>
 
             <%

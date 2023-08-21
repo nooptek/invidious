@@ -25,6 +25,8 @@ struct Preferences
   property local : Bool = CONFIG.default_user_preferences.local
   property watch_history : Bool = CONFIG.default_user_preferences.watch_history
   property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
+  property vcodecs : String? = CONFIG.default_user_preferences.vcodecs
+  property acodecs : String? = CONFIG.default_user_preferences.acodecs
   property show_nick : Bool = CONFIG.default_user_preferences.show_nick
 
   @[JSON::Field(converter: Preferences::ProcessString)]

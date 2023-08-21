@@ -118,13 +118,43 @@ struct Video
     return @adaptive_fmts
   end
 
+  protected def self.codecs_make_rej_pref(defpref, prefstr = nil)
+    # separate def pref and rej
+    defrej = defpref.select { |c| c[0] == '!' }.map! { |c| c[1..] }
+    defpref = defpref.reject { |c| c[0] == '!' }
+
+    # codec list built from user supplied string
+    userpref = prefstr.try &.downcase.match(CODECS_PATTERN).try &.[0].split(",").uniq!
+    return {defrej, defpref} unless userpref
+
+    # separate user pref and rej
+    userrej = userpref.select { |c| c[0] == '!' }.map! { |c| c[1..] }
+    userpref.reject! { |c| c[0] == '!' || c.in?(userrej) }
+
+    # remove def codecs already mentioned by user
+    defrej.reject! { |c| c.in?(userpref) || c.in?(userrej) }
+    defpref.reject! { |c| c.in?(userpref) || c.in?(userrej) }
+
+    {userrej + defrej, userpref + defpref}
+  end
+
+  protected def self.codec_score(pref, codec)
+    score = pref.index(codec)
+    score = score.nil? ? -1 : pref.size - score
+  end
+
   def video_streams_raw : Array(Invidious::Videos::AdaptativeVideoStream)
     @adaptive_fmts.select(Invidious::Videos::AdaptativeVideoStream)
   end
 
-  def video_streams : Array(Invidious::Videos::AdaptativeVideoStream)
-    video_streams_raw.sort_by do |stream|
-      {stream.video_width, stream.video_fps, stream.bitrate // 10000}
+  def video_streams(prefstr = nil) : Array(Invidious::Videos::AdaptativeVideoStream)
+    vrej, vpref = Video.codecs_make_rej_pref(VIDEO_CODECS, prefstr)
+
+    streams = video_streams_raw
+    streams.reject! { |stream| vrej.includes? stream.codec_types[0] }
+    streams.sort_by! do |stream|
+      c = stream.codec_types[0]
+      {stream.video_width, Video.codec_score(vpref, c), stream.video_fps, stream.bitrate // 10000, c}
     end.reverse!
   end
 
@@ -132,8 +162,13 @@ struct Video
     @adaptive_fmts.select(Invidious::Videos::AdaptativeAudioStream)
   end
 
-  def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
-    audio_streams_raw.sort_by do |stream|
+  def audio_streams(prefstr = nil) : Array(Invidious::Videos::AdaptativeAudioStream)
+    arej, apref = Video.codecs_make_rej_pref(AUDIO_CODECS, prefstr)
+
+    streams = audio_streams_raw
+    streams.reject! { |stream| arej.includes? stream.codec_types[0] }
+    streams.sort_by! do |stream|
+      c = stream.codec_types[0]
       if stream.is_a?(Invidious::Videos::AdaptativeAudioTrackStream)
         isdef = stream.default
         tid = stream.track_id.not_nil!
@@ -141,7 +176,7 @@ struct Video
         isdef = false
         tid = ""
       end
-      {stream.bitrate // 10000, isdef.to_unsafe, tid}
+      {stream.bitrate // 10000, Video.codec_score(apref, c), c, isdef.to_unsafe, tid}
     end.reverse!
   end
 

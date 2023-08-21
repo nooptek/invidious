@@ -121,6 +121,28 @@
                 <input name="save_player_pos" id="save_player_pos" type="checkbox" <% if preferences.save_player_pos %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="vcodecs"><%= translate(locale, "preferences_vcodecs_label") %></label>
+                <input
+                    name="vcodecs"
+                    id="vcodecs"
+                    type="text"
+                    value="<%= preferences.vcodecs %>"
+                    placeholder="<%= VIDEO_CODECS.join(",") %>"
+                    pattern="<%= CODECS_PATTERN.source[1..-2] %>">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="acodecs"><%= translate(locale, "preferences_acodecs_label") %></label>
+                <input
+                    name="acodecs"
+                    id="acodecs"
+                    type="text"
+                    value="<%= preferences.acodecs %>"
+                    placeholder="<%= AUDIO_CODECS.join(",") %>"
+                    pattern="<%= CODECS_PATTERN.source[1..-2] %>">
+            </div>
+
             <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">

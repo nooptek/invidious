@@ -820,6 +820,24 @@ default_user_preferences:
   #vr_mode: true
   
   ##
+  ## List of prefered video codecs
+  ##
+  ## Accepted values: an array of string
+  ## Add '!' prefix to a codec name to disable it
+  ## Default: <none>
+  ##
+  #vcodecs:
+
+  ##
+  ## List of prefered audio codecs
+  ##
+  ## Accepted values: an array of string
+  ## Add '!' prefix to a codec name to disable it
+  ## Default: <none>
+  ##
+  #acodecs:
+
+  ##
   ## Save the playback position
   ## Allow to continue watching at the previous position when
   ## watching the same video.

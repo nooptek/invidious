@@ -105,6 +105,10 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
+CODECS_PATTERN = /^(!?[a-z0-9\-]{1,8},)*!?[a-z0-9\-]{1,8}$/
+VIDEO_CODECS = {"av01", "vp9", "avc1"}
+AUDIO_CODECS = {"!ec-3", "!ac-3", "opus", "mp4a"}
+
 SB_CATEGORIES = {"sponsor", "selfpromo", "interaction", "intro", "outro", "preview", "music_offtopic", "filler"}
 SB_COLORS = {"#00d400", "#ffff00", "#cc00ff", "#00ffff", "#0202ed", "#008fd6", "#ff9900", "#7300ff"}
 SB_ACTIONS = {"none", "show", "skipauto"}

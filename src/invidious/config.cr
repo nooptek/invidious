@@ -42,6 +42,8 @@ struct ConfigPreferences
   property extend_desc : Bool = false
   property volume : Int32 = 100
   property vr_mode : Bool = true
+  property vcodecs : String? = nil
+  property acodecs : String? = nil
   property show_nick : Bool = true
   property save_player_pos : Bool = false
   property sponsorblock_enable : Bool = true

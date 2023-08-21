@@ -74,6 +74,9 @@ module Invidious::Routes::PreferencesRoute
     vr_mode ||= "off"
     vr_mode = vr_mode == "on"
 
+    vcodecs = env.params.body["vcodecs"]?.presence.try &.downcase.match(CODECS_PATTERN).try &.[0]
+    acodecs = env.params.body["acodecs"]?.presence.try &.downcase.match(CODECS_PATTERN).try &.[0]
+
     save_player_pos = env.params.body["save_player_pos"]?.try &.as(String)
     save_player_pos ||= "off"
     save_player_pos = save_player_pos == "on"
@@ -184,6 +187,8 @@ module Invidious::Routes::PreferencesRoute
       volume:                      volume,
       extend_desc:                 extend_desc,
       vr_mode:                     vr_mode,
+      vcodecs:                     vcodecs,
+      acodecs:                     acodecs,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
       sponsorblock_enable:         sponsorblock_enable,

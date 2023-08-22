@@ -133,6 +133,10 @@ ul.vjs-menu-content::-webkit-scrollbar {
   order: 5;
 }
 
+.vjs-chapters-button {
+  order: 5;
+}
+
 .vjs-share-control {
   order: 6;
 }

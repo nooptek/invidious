@@ -497,6 +497,8 @@
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
     "carousel_go_to": "Go to slide `x`",
+    "video_chapters_label": "Chapters",
+    "video_chapters_auto_generated_label": "These chapters are auto-generated",
     "channel_has_no_posts": "This channel hasn't posted yet",
     "users_count": "{{count}} user",
     "users_count_plural": "{{count}} users",

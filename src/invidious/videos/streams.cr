@@ -27,6 +27,17 @@ module Invidious::Videos
     Mesh
   end
 
+  enum GamutType : UInt8
+    BT709
+    BT2020
+  end
+
+  enum ColorTransferType : UInt8
+    SDR
+    PQ
+    HLG
+  end
+
   struct ByteRange
     getter start : UInt32
     getter end : UInt32
@@ -73,11 +84,28 @@ module Invidious::Videos
       property video_width : UInt32
       property video_height : UInt32
       property video_fps : UInt16
+      property video_gamut : GamutType?
+      property video_transfer : ColorTransferType?
 
       private macro init_video_properties(format)
         @video_width = format["width"].as_i.to_u32
         @video_height = format["height"].as_i.to_u32
         @video_fps = format["fps"].as_i.to_u16
+
+        format["colorInfo"]?.try do |ci|
+          @video_gamut = case ci["primaries"]?.try &.as_s.upcase
+          when nil
+          when .includes? "BT709" then GamutType::BT709
+          when .includes? "BT2020" then GamutType::BT2020
+          end
+
+          @video_transfer = case ci["transferCharacteristics"]?.try &.as_s.upcase
+          when nil
+          when .includes? "BT709" then ColorTransferType::SDR
+          when .includes? "SMPTEST2084" then ColorTransferType::PQ
+          when .includes? "ARIB_STD_B67" then ColorTransferType::HLG
+          end
+        end
       end
     end
   end

@@ -85,8 +85,9 @@ module Invidious::Routes::API::Manifest
     end
 
     video_streams = video_streams.group_by do |stream|
-      h = {} of Symbol => String
+      h = {} of Symbol => String | Invidious::Videos::ColorTransferType
       h[:mime] = stream.mime_type
+      h[:transfer] = stream.video_transfer || Invidious::Videos::ColorTransferType::SDR
       h[:codec] = stream.codec_types[0] if full
       h
     end
@@ -95,6 +96,9 @@ module Invidious::Routes::API::Manifest
       # VideoJS HTTP Streaming (VHS) does not support webm container
       audio_streams.select! { |k, v| k[:mime] == "audio/mp4" }
       video_streams.select! { |k, v| k[:mime] == "video/mp4" }
+
+      # HDR is not supported on Invidious frontend
+      video_streams.select! { |k, v| k[:transfer] == Invidious::Videos::ColorTransferType::SDR }
     end
 
     audio_streams.reject! { |k, v| v.empty? }

@@ -818,7 +818,17 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
-  
+
+  ##
+  ## Play HDR videos in this mode by default.
+  ##
+  ## Note: HDR requires compatible display hardware.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #hdr: false
+
   ##
   ## List of prefered video codecs
   ##

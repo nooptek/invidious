@@ -74,6 +74,10 @@ module Invidious::Routes::PreferencesRoute
     vr_mode ||= "off"
     vr_mode = vr_mode == "on"
 
+    hdr = env.params.body["hdr"]?.try &.as(String)
+    hdr ||= "off"
+    hdr = hdr == "on"
+
     vcodecs = env.params.body["vcodecs"]?.presence.try &.downcase.match(CODECS_PATTERN).try &.[0]
     acodecs = env.params.body["acodecs"]?.presence.try &.downcase.match(CODECS_PATTERN).try &.[0]
 
@@ -187,6 +191,7 @@ module Invidious::Routes::PreferencesRoute
       volume:                      volume,
       extend_desc:                 extend_desc,
       vr_mode:                     vr_mode,
+      hdr:                         hdr,
       vcodecs:                     vcodecs,
       acodecs:                     acodecs,
       show_nick:                   show_nick,

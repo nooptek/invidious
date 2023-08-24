@@ -87,6 +87,12 @@ we're going to need to do it here in order to allow for translations.
                 <i class="icon ion-md-headset"></i>
             </a>
         <% end %>
+        <% if !video.has_hdr %>
+        <% elsif params.hdr %>
+            <a href="/watch?<%= env.params.query %>&hdr=0">SDR</a>
+        <% else %>
+            <a href="/watch?<%= env.params.query %>&hdr=1">HDR</a>
+        <% end %>
     </h1>
 
     <% if !video.is_listed %>

@@ -176,6 +176,10 @@ ul.vjs-menu-content::-webkit-scrollbar {
   background-color: rgba(0, 182, 240, 0.75);
 }
 
+.vjs-http-source-selector .vjs-menu-item {
+  text-transform: none;
+}
+
 /* Progress Bar */
 .video-js .vjs-slider {
   background-color: rgba(15, 15, 15, 0.5);

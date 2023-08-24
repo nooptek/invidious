@@ -42,6 +42,7 @@ struct ConfigPreferences
   property extend_desc : Bool = false
   property volume : Int32 = 100
   property vr_mode : Bool = true
+  property hdr : Bool = false
   property vcodecs : String? = nil
   property acodecs : String? = nil
   property show_nick : Bool = true

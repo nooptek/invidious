@@ -294,6 +294,12 @@ struct Video
     return info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
   end
 
+  def has_hdr : Bool?
+    return video_streams_raw.any? do |stream|
+      stream.video_transfer.try &.!= Invidious::Videos::ColorTransferType::SDR
+    end
+  end
+
   def reason : String?
     info["reason"]?.try &.as_s
   end

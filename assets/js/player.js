@@ -395,8 +395,25 @@ if (video_data.params.autoplay) {
     });
 }
 
+function patch_quality_labels () {
+    let cb = player.getChild('controlBar');
+    let src = cb.getChild('sourceMenuButton');
+    for (let tag of src.el().querySelectorAll('.vjs-menu-item-text')) {
+        if (tag.innerText.endsWith('p'))
+            tag.innerText += ' HDR';
+    }
+}
+
 if (!video_data.params.listen && video_data.params.quality === 'dash') {
     player.httpSourceSelector();
+
+    if (video_data.params.hdr) {
+        player.ready(function () {
+            player.on('loadedmetadata', function () {
+                player.qualityLevels().on(['change', 'addqualitylevel'], patch_quality_labels);
+            });
+        });
+    }
 
     if (video_data.params.quality_dash !== 'auto') {
         player.ready(function () {

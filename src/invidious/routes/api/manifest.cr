@@ -17,6 +17,7 @@ module Invidious::Routes::API::Manifest
 
     listen = env.params.query["listen"]?.try { |q| (q == "true" || q == "1") } || false
     full = env.params.query["full"]?.try { |q| (q == "true" || q == "1") } || false
+    hdr = env.params.query["hdr"]?.try { |q| (q == "true" || q == "1") } || false
 
     begin
       video = get_video(id, region: region)
@@ -97,8 +98,14 @@ module Invidious::Routes::API::Manifest
       audio_streams.select! { |k, v| k[:mime] == "audio/mp4" }
       video_streams.select! { |k, v| k[:mime] == "video/mp4" }
 
-      # HDR is not supported on Invidious frontend
-      video_streams.select! { |k, v| k[:transfer] == Invidious::Videos::ColorTransferType::SDR }
+      video_streams_hdr = video_streams.find { |k, v| k[:transfer] != Invidious::Videos::ColorTransferType::SDR }
+      if !video_streams_hdr
+        # ignore "hdr" parameter
+      elsif hdr
+        video_streams = {video_streams_hdr[0] => video_streams_hdr[1]}
+      else
+        video_streams.select! { |k, v| k[:transfer] == Invidious::Videos::ColorTransferType::SDR }
+      end
     end
 
     audio_streams.reject! { |k, v| v.empty? }
@@ -152,6 +159,17 @@ module Invidious::Routes::API::Manifest
 
           video_streams.each do |k, formats|
             xml.element("AdaptationSet", id: i, mimeType: k[:mime], startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
+              transfer = k[:transfer].as(Invidious::Videos::ColorTransferType)
+              if transfer != Invidious::Videos::ColorTransferType::SDR
+                # according to ISO/IEC 23001-8
+                transfer = case transfer
+                when Invidious::Videos::ColorTransferType::PQ then 16
+                when Invidious::Videos::ColorTransferType::HLG then 18
+                else raise "Unsupported ColorTransferType"
+                end
+                xml.element("SupplementalProperty", schemeIdUri: "urn:mpeg:mpegB:cicp:TransferCharacteristics", value: transfer)
+              end
+
               formats.each do |fmt|
                 height = full ? fmt.video_height : fmt.label.to_i(strict: false)
 

@@ -163,6 +163,9 @@ module Invidious::Routes::Embed
 
     audio_streams = video.audio_streams
 
+    # HDR is not supported on embed
+    params.hdr = false
+
     if audio_streams.empty? && !video.live_now
       if params.quality == "dash"
         env.params.query.delete_all("quality")

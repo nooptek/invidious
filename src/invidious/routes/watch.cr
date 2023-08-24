@@ -50,6 +50,7 @@ module Invidious::Routes::Watch
 
     params = process_video_params(env.params.query, preferences)
     env.params.query.delete_all("listen")
+    env.params.query.delete_all("hdr")
 
     begin
       video = get_video(id, region: params.region)
@@ -128,6 +129,7 @@ module Invidious::Routes::Watch
     audio_streams_raw = video.audio_streams_raw
     audio_streams = video.audio_streams
 
+    params.hdr = false if !video.has_hdr
     video_streams_raw = video.video_streams_raw
 
     # Older videos may not have audio sources available.

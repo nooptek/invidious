@@ -516,5 +516,6 @@
     "preferences_sponsorblock_action_skipmanu": "Skip segment manually",
     "preferences_sponsorblock_action_skipauto": "Skip segment automatically",
     "preferences_vcodecs_label": "Video codecs: ",
-    "preferences_acodecs_label": "Audio codecs: "
+    "preferences_acodecs_label": "Audio codecs: ",
+    "preferences_hdr_label": "HDR by default: "
 }

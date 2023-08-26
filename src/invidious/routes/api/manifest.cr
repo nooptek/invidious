@@ -10,7 +10,7 @@ module Invidious::Routes::API::Manifest
 
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation
-    unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+    unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1") } || false
 
     begin
       video = get_video(id, region: region)

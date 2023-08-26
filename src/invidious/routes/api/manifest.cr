@@ -4,7 +4,7 @@ module Invidious::Routes::API::Manifest
     env.response.headers.add("Access-Control-Allow-Origin", "*")
     env.response.content_type = "application/dash+xml"
 
-    local = env.params.query["local"]?.try &.== "true"
+    local = env.params.query["local"]?.try { |q| (q == "true" || q == "1") } || false
     id = env.params.url["id"]
     region = env.params.query["region"]?
 
@@ -169,7 +169,7 @@ module Invidious::Routes::API::Manifest
       haltf env, status_code: response.status_code
     end
 
-    local = env.params.query["local"]?.try &.== "true"
+    local = env.params.query["local"]?.try { |q| (q == "true" || q == "1") } || false
 
     env.response.content_type = "application/x-mpegURL"
     env.response.headers.add("Access-Control-Allow-Origin", "*")
@@ -224,7 +224,7 @@ module Invidious::Routes::API::Manifest
       haltf env, status_code: response.status_code
     end
 
-    local = env.params.query["local"]?.try &.== "true"
+    local = env.params.query["local"]?.try { |q| (q == "true" || q == "1") } || false
 
     env.response.content_type = "application/x-mpegURL"
     env.response.headers.add("Access-Control-Allow-Origin", "*")

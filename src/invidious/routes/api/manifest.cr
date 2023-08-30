@@ -105,7 +105,7 @@ module Invidious::Routes::API::Manifest
                 heights << height
 
                 xml.element("Representation", id: fmt.itag, codecs: fmt.codecs, width: fmt.video_width, height: height,
-                  startWithSAP: "1", maxPlayoutRate: "1", bandwidth: fmt.bitrate, frameRate: fmt.video_fps) do
+                  startWithSAP: "1", maxPlayoutRate: "1", bandwidth: fmt.bitrate, frameRate: fmt.video_fps, label: fmt.label) do
                   xml.element("BaseURL") { xml.text fmt.url }
                   xml.element("SegmentBase", indexRange: fmt.index_range.to_s) do
                     xml.element("Initialization", range: fmt.init_range.to_s)

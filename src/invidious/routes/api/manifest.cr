@@ -89,8 +89,6 @@ module Invidious::Routes::API::Manifest
             end
           end
 
-          potential_heights = {4320, 2160, 1440, 1080, 720, 480, 360, 240, 144}
-
           {"video/mp4"}.each do |mime_type|
             mime_streams = video_streams.select(&.mime_type.== mime_type)
             next if mime_streams.empty?
@@ -102,8 +100,7 @@ module Invidious::Routes::API::Manifest
                 # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if (fmt.index_range.nil? || fmt.init_range.nil?)
 
-                # Resolutions reported by YouTube player (may not accurately reflect source)
-                height = potential_heights.min_by { |x| (fmt.video_height.to_i32 - x).abs }
+                height = fmt.label.to_i(strict: false)
                 next if unique_res && heights.includes? height
                 heights << height
 

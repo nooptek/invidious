@@ -15,6 +15,8 @@ module Invidious::Routes::API::Manifest
     acodecs = env.params.query["acodecs"]?
     vcodecs = env.params.query["vcodecs"]?
 
+    full = env.params.query["full"]?.try { |q| (q == "true" || q == "1") } || false
+
     begin
       video = get_video(id, region: region)
     rescue ex : NotFoundException
@@ -54,8 +56,49 @@ module Invidious::Routes::API::Manifest
       end
     end
 
-    audio_streams = video.audio_streams(acodecs)
-    video_streams = video.video_streams(vcodecs)
+    if full
+      audio_streams = video.audio_streams_raw
+      video_streams = video.video_streams_raw
+    else
+      audio_streams = video.audio_streams(acodecs)
+      video_streams = video.video_streams(vcodecs)
+    end
+
+    audio_streams = audio_streams.group_by do |stream|
+      h = {} of Symbol => String | UInt64
+      h[:mime] = stream.mime_type
+      h[:tid] = stream.track_id.not_nil! if stream.is_a?(Invidious::Videos::AdaptativeAudioTrackStream)
+
+      # Different representations of the same audio should be groupped into one AdaptationSet.
+      # However, most players don't support auto quality switching, so we have to trick them
+      # into providing a quality selector.
+      # See https://github.com/iv-org/invidious/issues/3074 for more details.
+      h[:unique] = stream.object_id if !full
+
+      h
+    end
+
+    video_streams = video_streams.group_by do |stream|
+      h = {} of Symbol => String
+      h[:mime] = stream.mime_type
+      h[:codec] = stream.codec_types[0] if full
+      h
+    end
+
+    if !full
+      # VideoJS HTTP Streaming (VHS) does not support webm container
+      audio_streams.select! { |k, v| k[:mime] == "audio/mp4" }
+      video_streams.select! { |k, v| k[:mime] == "video/mp4" }
+    end
+
+    audio_streams.reject! { |k, v| v.empty? }
+    # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
+    audio_streams.each_value &.reject! { |fmt| fmt.index_range.nil? || fmt.init_range.nil? }
+
+    video_streams.reject! { |k, v| v.empty? }
+    # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
+    video_streams.each_value &.reject! { |fmt| fmt.index_range.nil? || fmt.init_range.nil? }
+    video_streams.each_value &.uniq! &.label if unique_res
 
     # Build the manifest
     return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -65,31 +108,25 @@ module Invidious::Routes::API::Manifest
         xml.element("Period") do
           i = 0
 
-          {"audio/mp4"}.each do |mime_type|
-            formats = audio_streams.select(&.mime_type.== mime_type)
-            next if formats.empty?
-
-            formats.each do |fmt|
-              # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
-              next if (fmt.index_range.nil? || fmt.init_range.nil?)
-
-              # Different representations of the same audio should be groupped into one AdaptationSet.
-              # However, most players don't support auto quality switching, so we have to trick them
-              # into providing a quality selector.
-              # See https://github.com/iv-org/invidious/issues/3074 for more details.
-              props = {
-                "id" => i,
-                "mimeType" => mime_type,
-                "startWithSAP" => 1,
-                "subsegmentAlignment" => true,
-                "label" => "#{fmt.bitrate // 1000} kbps",
-              }
-              if fmt.is_a?(Invidious::Videos::AdaptativeAudioTrackStream)
-                props["lang"] = fmt.track_name
-                props["label"] = "#{fmt.track_name} #{props["label"]}"
-              end
-              xml.element("AdaptationSet", props) do
-                xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
+          audio_streams.each do |k, formats|
+            props = {
+              "id" => i,
+              "mimeType" => k[:mime],
+              "startWithSAP" => 1,
+              "subsegmentAlignment" => true,
+            }
+            label = [] of String
+            formats[0].as?(Invidious::Videos::AdaptativeAudioTrackStream).try do |track|
+              props["lang"] = track.track_name
+              label.push(track.track_name)
+            end
+            if !full
+              label.push("#{formats[0].bitrate // 1000} kbps")
+            end
+            props["label"] = label.join(" ") unless label.empty?
+            xml.element("AdaptationSet", props) do
+              xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
+              formats.each do |fmt|
                 xml.element("Representation", id: fmt.itag, codecs: fmt.codecs[0], bandwidth: fmt.bitrate) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: fmt.audio_channels)
                   xml.element("BaseURL") { xml.text fmt.url }
@@ -98,25 +135,15 @@ module Invidious::Routes::API::Manifest
                   end
                 end
               end
-
-              i += 1
             end
+
+            i += 1
           end
 
-          {"video/mp4"}.each do |mime_type|
-            mime_streams = video_streams.select(&.mime_type.== mime_type)
-            next if mime_streams.empty?
-
-            heights = [] of Int32
-
-            xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
-              mime_streams.each do |fmt|
-                # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
-                next if (fmt.index_range.nil? || fmt.init_range.nil?)
-
-                height = fmt.label.to_i(strict: false)
-                next if unique_res && heights.includes? height
-                heights << height
+          video_streams.each do |k, formats|
+            xml.element("AdaptationSet", id: i, mimeType: k[:mime], startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
+              formats.each do |fmt|
+                height = full ? fmt.video_height : fmt.label.to_i(strict: false)
 
                 xml.element("Representation", id: fmt.itag, codecs: fmt.codecs[0], width: fmt.video_width, height: height,
                   startWithSAP: "1", maxPlayoutRate: "1", bandwidth: fmt.bitrate, frameRate: fmt.video_fps, label: fmt.label) do

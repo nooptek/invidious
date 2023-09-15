@@ -245,7 +245,9 @@ module Invidious::Routes::PreferencesRoute
         statistics_enabled ||= "off"
         CONFIG.statistics_enabled = statistics_enabled == "on"
 
-        CONFIG.modified_source_code_url = env.params.body["modified_source_code_url"]?.presence
+        url = env.params.body["modified_source_code_url"]?.presence
+        url = url.try { |x| String.build { |io| URI.encode(x, io) { |byte| URI.reserved?(byte) || URI.unreserved?(byte) } } }
+        CONFIG.modified_source_code_url = url
 
         begin
           File.write(CONFIG_FILE, CONFIG.to_yaml) unless ENV.has_key?(ENV_CONFIG_YAML)

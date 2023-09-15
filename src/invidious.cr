@@ -57,6 +57,9 @@ end
 # Simple alias to make code easier to read
 alias IV = Invidious
 
+CONFIG_FILE = ENV["INVIDIOUS_CONFIG_FILE"]? || "config/config.yml"
+ENV_CONFIG_YAML = "INVIDIOUS_CONFIG"
+
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 

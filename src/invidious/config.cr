@@ -154,11 +154,7 @@ class Config
 
   def self.load
     # Load config from file or YAML string env var
-    env_config_file = "INVIDIOUS_CONFIG_FILE"
-    env_config_yaml = "INVIDIOUS_CONFIG"
-
-    config_file = ENV.has_key?(env_config_file) ? ENV.fetch(env_config_file) : "config/config.yml"
-    config_yaml = ENV.has_key?(env_config_yaml) ? ENV.fetch(env_config_yaml) : File.read(config_file)
+    config_yaml = ENV[ENV_CONFIG_YAML]? || File.read(CONFIG_FILE)
 
     config = Config.from_yaml(config_yaml)
 

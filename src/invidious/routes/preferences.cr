@@ -216,7 +216,7 @@ module Invidious::Routes::PreferencesRoute
 
         CONFIG.modified_source_code_url = env.params.body["modified_source_code_url"]?.presence
 
-        File.write("config/config.yml", CONFIG.to_yaml)
+        File.write(CONFIG_FILE, CONFIG.to_yaml) unless ENV.has_key?(ENV_CONFIG_YAML)
       end
     else
       env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)

@@ -55,6 +55,7 @@ module Invidious::Frontend::WatchPage
         str << (height || option.video_height) << "p - "
         str << option.mime_type << " "
         str << option.video_fps << "fps "
+        str << option.audio_channels << "ch "
         str << "@ " << (option.bitrate // 1000) << " kbps "
         str << "</option>\n"
       end
@@ -80,6 +81,7 @@ module Invidious::Frontend::WatchPage
 
         str << "\t\t\t<option value='" << value << "'>"
         str << option.mime_type << " "
+        str << option.audio_channels << "ch "
         str << "@ " << (option.bitrate // 1000) << " kbps "
         str << "- audio only"
         str << "</option>\n"

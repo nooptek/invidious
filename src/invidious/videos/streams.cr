@@ -198,7 +198,7 @@ module Invidious::Videos
 
     getter raw_mime_type : String
     getter mime_type : String
-    getter codecs : String
+    getter codecs : Array(String)
 
     getter last_modified : Time?
 
@@ -212,7 +212,7 @@ module Invidious::Videos
 
       # Extract MIME type and codecs from the raw mimeType string
       @mime_type, raw_codecs = @raw_mime_type.split(';')
-      @codecs = raw_codecs.lchop(" codecs=\"").rchop('"')
+      @codecs = raw_codecs.split("codecs=")[1].strip('"').split(",")
 
       # Last modified is not present on livestreams
       if last_modified = format["lastModified"]?.try &.as_s
@@ -251,6 +251,10 @@ module Invidious::Videos
           {% end %}
         {% end %}
       {% end %}
+    end
+
+    def codec_types
+      @codecs.map(&.split(".")[0].strip.downcase).uniq!
     end
   end
 

@@ -76,7 +76,7 @@ module Invidious::Routes::API::Manifest
               # See https://github.com/iv-org/invidious/issues/3074 for more details.
               xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: "#{(fmt.bitrate // 1000)} kbps") do
                 xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
-                xml.element("Representation", id: fmt.itag, codecs: fmt.codecs, bandwidth: fmt.bitrate) do
+                xml.element("Representation", id: fmt.itag, codecs: fmt.codecs[0], bandwidth: fmt.bitrate) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: fmt.audio_channels)
                   xml.element("BaseURL") { xml.text fmt.url }
                   xml.element("SegmentBase", indexRange: fmt.index_range.to_s) do
@@ -104,7 +104,7 @@ module Invidious::Routes::API::Manifest
                 next if unique_res && heights.includes? height
                 heights << height
 
-                xml.element("Representation", id: fmt.itag, codecs: fmt.codecs, width: fmt.video_width, height: height,
+                xml.element("Representation", id: fmt.itag, codecs: fmt.codecs[0], width: fmt.video_width, height: height,
                   startWithSAP: "1", maxPlayoutRate: "1", bandwidth: fmt.bitrate, frameRate: fmt.video_fps, label: fmt.label) do
                   xml.element("BaseURL") { xml.text fmt.url }
                   xml.element("SegmentBase", indexRange: fmt.index_range.to_s) do

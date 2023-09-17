@@ -54,6 +54,7 @@ module Invidious::Frontend::WatchPage
         str << "\t\t\t<option value='" << value << "'>"
         str << (height || option.video_height) << "p - "
         str << option.mime_type << " "
+        str << option.codec_types.join("+") << " "
         str << option.video_fps << "fps "
         str << option.audio_channels << "ch "
         str << "@ " << (option.bitrate // 1000) << " kbps "
@@ -68,6 +69,7 @@ module Invidious::Frontend::WatchPage
         str << "\t\t\t<option value='" << value << "'>"
         str << option.label << " - "
         str << option.mime_type << " "
+        str << option.codec_types[0] << " "
         str << option.video_fps << "fps "
         str << "@ " << (option.bitrate // 1000) << " kbps "
         str << "- video only"
@@ -81,6 +83,7 @@ module Invidious::Frontend::WatchPage
 
         str << "\t\t\t<option value='" << value << "'>"
         str << option.mime_type << " "
+        str << option.codec_types[0] << " "
         str << option.audio_channels << "ch "
         str << "@ " << (option.bitrate // 1000) << " kbps "
         str << "- audio only"

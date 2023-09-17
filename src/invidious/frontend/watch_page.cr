@@ -52,7 +52,10 @@ module Invidious::Frontend::WatchPage
         value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << (height || option.video_height) << "p - " << option.mime_type
+        str << (height || option.video_height) << "p - "
+        str << option.mime_type << " "
+        str << option.video_fps << "fps "
+        str << "@ " << (option.bitrate // 1000) << " kbps "
         str << "</option>\n"
       end
 
@@ -62,8 +65,11 @@ module Invidious::Frontend::WatchPage
         value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << option.label << " - " << option.mime_type
-        str << " @ " << option.video_fps << "fps - video only"
+        str << option.label << " - "
+        str << option.mime_type << " "
+        str << option.video_fps << "fps "
+        str << "@ " << (option.bitrate // 1000) << " kbps "
+        str << "- video only"
         str << "</option>\n"
       end
 
@@ -73,7 +79,9 @@ module Invidious::Frontend::WatchPage
         value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << option.mime_type << " @ " << (option.bitrate // 1000) << "kbps - audio only"
+        str << option.mime_type << " "
+        str << "@ " << (option.bitrate // 1000) << " kbps "
+        str << "- audio only"
         str << "</option>\n"
       end
 

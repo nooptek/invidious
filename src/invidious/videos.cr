@@ -119,11 +119,11 @@ struct Video
   end
 
   def video_streams : Array(Invidious::Videos::AdaptativeVideoStream)
-    self.adaptive_fmts.select(Invidious::Videos::AdaptativeVideoStream)
+    @adaptive_fmts.select(Invidious::Videos::AdaptativeVideoStream)
   end
 
   def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
-    self.adaptive_fmts.select(Invidious::Videos::AdaptativeAudioStream)
+    @adaptive_fmts.select(Invidious::Videos::AdaptativeAudioStream)
   end
 
   # Misc. methods

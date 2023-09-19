@@ -161,7 +161,6 @@ module Invidious::Routes::Embed
       adaptive_fmts.each { |fmt| fmt.url = HttpServer::Utils.proxy_video_url(fmt.url) }
     end
 
-    video_streams = video.video_streams
     audio_streams = video.audio_streams
 
     if audio_streams.empty? && !video.live_now

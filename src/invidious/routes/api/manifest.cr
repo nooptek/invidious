@@ -51,8 +51,8 @@ module Invidious::Routes::API::Manifest
       end
     end
 
-    audio_streams = video.audio_streams.sort_by(&.bitrate).reverse!
-    video_streams = video.video_streams.sort_by { |fmt| {fmt.video_width, fmt.video_fps} }.reverse!
+    audio_streams = video.audio_streams
+    video_streams = video.video_streams
 
     # Build the manifest
     return XML.build(indent: "  ", encoding: "UTF-8") do |xml|

@@ -125,8 +125,10 @@ module Invidious::Routes::Watch
       adaptive_fmts.each { |fmt| fmt.url = HttpServer::Utils.proxy_video_url(fmt.url) }
     end
 
-    video_streams = video.video_streams
+    audio_streams_raw = video.audio_streams_raw
     audio_streams = video.audio_streams
+
+    video_streams_raw = video.video_streams_raw
 
     # Older videos may not have audio sources available.
     # We redirect here so they're not unplayable
@@ -185,8 +187,8 @@ module Invidious::Routes::Watch
     # Structure used for the download widget
     video_assets = Invidious::Frontend::WatchPage::VideoAssets.new(
       full_videos: fmt_stream,
-      video_streams: video_streams,
-      audio_streams: audio_streams,
+      video_streams: video_streams_raw,
+      audio_streams: audio_streams_raw,
       captions: video.captions
     )
 

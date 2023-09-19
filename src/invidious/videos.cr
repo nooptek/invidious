@@ -118,12 +118,22 @@ struct Video
     return @adaptive_fmts
   end
 
-  def video_streams : Array(Invidious::Videos::AdaptativeVideoStream)
+  def video_streams_raw : Array(Invidious::Videos::AdaptativeVideoStream)
     @adaptive_fmts.select(Invidious::Videos::AdaptativeVideoStream)
   end
 
-  def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
+  def video_streams : Array(Invidious::Videos::AdaptativeVideoStream)
+    video_streams_raw.sort_by do |stream|
+      {stream.video_width, stream.video_fps, stream.bitrate // 10000}
+    end.reverse!
+  end
+
+  def audio_streams_raw : Array(Invidious::Videos::AdaptativeAudioStream)
     @adaptive_fmts.select(Invidious::Videos::AdaptativeAudioStream)
+  end
+
+  def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
+    audio_streams_raw.sort_by(&.bitrate.// 10000).reverse!
   end
 
   # Misc. methods

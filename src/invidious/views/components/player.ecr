@@ -7,17 +7,7 @@
         <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
-            <% # default to 128k m4a stream
-               best_m4a_stream_index = 0
-               best_m4a_stream_bitrate = 0
-               audio_streams.each_with_index do |fmt, i|
-                 bandwidth = fmt.bitrate
-                 if (fmt.mime_type == "audio/mp4" && bandwidth > best_m4a_stream_bitrate)
-                   best_m4a_stream_bitrate = bandwidth
-                   best_m4a_stream_index = i
-                 end
-               end
-
+            <%
                audio_streams.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt.itag}"
                 src_url += "&local=true" if params.local
@@ -25,7 +15,7 @@
                 bitrate = fmt.bitrate // 1000
                 mimetype = HTML.escape(fmt.raw_mime_type)
 
-                selected = (i == best_m4a_stream_index)
+                selected = (i == 0)
             %>
                 <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %> kbps" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>

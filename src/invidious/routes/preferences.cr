@@ -11,6 +11,50 @@ module Invidious::Routes::PreferencesRoute
     templated "user/preferences"
   end
 
+  # manually merge items to preserve formatting and comments
+  private def self.save_config
+    return if ENV.has_key?(ENV_CONFIG_YAML)
+
+    newconfstr = CONFIG.to_yaml
+
+    File.open(CONFIG_FILE, "r+") do |f|
+      content = f.gets_to_end
+      oldconf = Config.from_yaml content
+
+      {% for field in [
+        "default_user_preferences.default_home",
+        "default_user_preferences.feed_menu",
+        "popular_enabled",
+        "trending_enabled",
+        "captcha_enabled",
+        "login_enabled",
+        "login_required",
+        "registration_enabled",
+        "statistics_enabled",
+        "modified_source_code_url",
+      ] %}
+      #% for field in Config.instance_vars %
+        if CONFIG.{{field.id}} != oldconf.{{field.id}}
+          #s = { {{field.id}}: CONFIG.{{field.id}} }
+          #s = s.to_yaml.split("\n", 2)[1]
+          # TODO change values
+          #content = content.sub()
+          #puts "--------------- modified #{s}"
+          puts "--------------- modified {{field.id}}"
+          puts "-------- old"
+          puts oldconf.{{field.id}}
+          puts "-------- new"
+          puts CONFIG.{{field.id}}
+          puts "--------"
+        end
+      {% end %}
+
+      f.rewind
+      f.truncate
+      f.print(content)
+    end
+  end
+
   def self.update(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
@@ -250,7 +294,8 @@ module Invidious::Routes::PreferencesRoute
         CONFIG.modified_source_code_url = url
 
         begin
-          File.write(CONFIG_FILE, CONFIG.to_yaml) unless ENV.has_key?(ENV_CONFIG_YAML)
+          #File.write(CONFIG_FILE + ".mod", CONFIG.to_yaml) unless ENV.has_key?(ENV_CONFIG_YAML)
+          save_config
         rescue ex : File::Error
           LOGGER.error("Cannot save configuration file: #{ex}")
         end

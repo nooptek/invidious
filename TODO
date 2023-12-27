@@ -1,0 +1,29 @@
+OpenRC startup script
+reload conf file without restart
+store files at the right place (conf in /etc, static data in /usr/share, ...) to be properly packageable
+token manager delete all tokens at once except current
+show playlists duration
+corrupted video chunks with avc1
+IVSB skip current ad when segments are loaded after video start
+IVSB proper skip when segments overlap
+stats for nerds in player
+add native support for dearrow
+generate DASH manifest with subtitle tracks
+make listening mode for livestreams do not play video
+see chapters in player like on youtube => https://github.com/syeopite/invidious/commits/add-chapters/
+show popularity curve on player like on youtube
+player control bar does not disappear when changing resolution ?
+audio alternatives not properly ordered by bitrate in player
+ask to restart video from saved point and do it by default (like VLC)
+video titles sometimes translated sometimes not
+partial "vp9" or "vp9.2" codec string returned by extractor instead of full string
+override chosen codecs order by 1) supported in browser 2) hardware-accelerated
+proper video resolution tag, not based on vertical resolution => read height from quality tag
+generate dash manifest with codecs as separate flows => need to modify vhs plugin which generates quality labels
+fix Microsoft Edge / Firefox Android support => AV1 support / user codec override
+HDR support => video/webm support
+build without internet
+show dislikes => youtube removed dislikes from API
+
+https://greasyfork.org/en/scripts/453551-sponsor-block-integration-invidious/code
+https://codeberg.org/mthsk/userscripts/src/branch/master/simple-sponsor-skipper/simple-sponsor-skipper.user.js

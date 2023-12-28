@@ -497,5 +497,7 @@
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
     "carousel_go_to": "Go to slide `x`",
-    "channel_has_no_posts": "This channel hasn't posted yet"
+    "channel_has_no_posts": "This channel hasn't posted yet",
+    "users_count": "{{count}} user",
+    "users_count_plural": "{{count}} users"
 }

@@ -4,8 +4,16 @@
 
 <div class="h-box">
     <form class="pure-form pure-form-aligned" action="/delete_account?referer=<%= URI.encode_www_form(referer) %>" method="post">
-        <legend><%= translate(locale, "Delete account?") %></legend>
+        <legend>
+            <% if moduser %>
+                <%= moduser.email %> :
+            <% end %>
+            <%= translate(locale, "Delete account?") %>
+        </legend>
 
+        <% if moduser %>
+            <input type="hidden" name="email" value="<%= moduser.email %>">
+        <% end %>
         <div class="pure-g">
             <div class="pure-u-1-2">
                 <button type="submit" name="submit" value="delete_account" class="pure-button pure-button-primary">

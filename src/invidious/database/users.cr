@@ -216,6 +216,14 @@ module Invidious::Database::Users
     return PG_DB.query_one?(request, token, as: User)
   end
 
+  def select_all : Array(User)
+    request = <<-SQL
+      SELECT * FROM users
+    SQL
+
+    PG_DB.query_all(request, as: User)
+  end
+
   def select_notifications(user : User) : Array(String)
     request = <<-SQL
       SELECT notifications

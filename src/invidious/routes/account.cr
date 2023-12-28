@@ -20,6 +20,25 @@ module Invidious::Routes::Account
     end
 
     user = user.as(User)
+
+    moduser = env.params.query["email"]?
+    if moduser # admin changes another user password
+      if !CONFIG.admins.includes? user.email
+        return error_template(401, "Only admins can change other user password.")
+      end
+      if CONFIG.registration_enabled
+        return error_template(400, "User management is only allowed when registration is disabled.")
+      end
+
+      moduser = Invidious::Database::Users.select(email: moduser)
+      if !moduser
+        return error_template(400, "Non existing user.")
+      end
+      if CONFIG.admins.includes? moduser.email
+        return error_template(401, "Admin account password cannot be changed by another user.")
+      end
+    end
+
     sid = sid.as(String)
     csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
 
@@ -48,15 +67,43 @@ module Invidious::Routes::Account
       return error_template(400, ex)
     end
 
-    password = env.params.body["password"]?
-    if password.nil? || password.empty?
-      return error_template(401, "Password is a required field")
-    end
-
     new_passwords = env.params.body.select { |k, _| k.match(/^new_password\[\d+\]$/) }.map { |_, v| v }
 
-    if new_passwords.size <= 1 || new_passwords.uniq.size != 1
-      return error_template(400, "New passwords must match")
+    moduser = env.params.body["email"]?
+    if moduser # admin changes another user password
+      if !CONFIG.admins.includes? user.email
+        return error_template(400, "Only admins can change other user password.")
+      end
+      if CONFIG.registration_enabled
+        return error_template(400, "User management is only allowed when registration is disabled.")
+      end
+
+      if new_passwords.size < 1
+        return error_template(401, "New password is a required field")
+      end
+
+      moduser = Invidious::Database::Users.select(email: moduser)
+      if !moduser
+        return error_template(400, "Non existing user.")
+      end
+      if CONFIG.admins.includes? moduser.email
+        return error_template(401, "Admin account password cannot be changed by another user.")
+      end
+    else # user changes its own password
+      password = env.params.body["password"]?
+      if password.nil? || password.empty?
+        return error_template(401, "Password is a required field")
+      end
+
+      if new_passwords.size <= 1 || new_passwords.uniq.size != 1
+        return error_template(400, "New passwords must match")
+      end
+
+      if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+        return error_template(401, "Incorrect password")
+      end
+
+      moduser = user
     end
 
     new_password = new_passwords.uniq[0]
@@ -68,12 +115,8 @@ module Invidious::Routes::Account
       return error_template(400, "Password cannot be longer than 55 characters")
     end
 
-    if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
-      return error_template(401, "Incorrect password")
-    end
-
     new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
-    Invidious::Database::Users.update_password(user, new_password.to_s)
+    Invidious::Database::Users.update_password(moduser, new_password.to_s)
 
     env.redirect referer
   end
@@ -97,11 +140,29 @@ module Invidious::Routes::Account
     user = user.as(User)
     sid = sid.as(String)
 
-    if CONFIG.admins.includes? user.email
-      return error_template(400, "Admin account cannot be deleted.")
-    end
-    if !CONFIG.registration_enabled
-      return error_template(400, "Accounts cannot be deleted when registration is disabled.")
+    moduser = env.params.query["email"]?
+    if moduser # admin deletes other user account
+      if !CONFIG.admins.includes? user.email
+        return error_template(401, "Only admins can delete other user accounts.")
+      end
+      if CONFIG.registration_enabled
+        return error_template(400, "User management is only allowed when registration is disabled.")
+      end
+
+      moduser = Invidious::Database::Users.select(email: moduser)
+      if !moduser
+        return error_template(400, "Non existing user.")
+      end
+      if CONFIG.admins.includes? moduser.email
+        return error_template(401, "Admin account cannot be deleted by another user.")
+      end
+    else # user deletes its own account
+      if CONFIG.admins.includes? user.email
+        return error_template(400, "Admin account cannot be deleted.")
+      end
+      if !CONFIG.registration_enabled
+        return error_template(400, "Accounts cannot be deleted when registration is disabled.")
+      end
     end
 
     csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
@@ -131,27 +192,167 @@ module Invidious::Routes::Account
       return error_template(400, ex)
     end
 
-    if CONFIG.admins.includes? user.email
-      return error_template(400, "Admin account cannot be deleted.")
-    end
-    if !CONFIG.registration_enabled
-      return error_template(400, "Accounts cannot be deleted when registration is disabled.")
+    moduser = env.params.body["email"]?
+    if moduser # admin deletes other user account
+      if !CONFIG.admins.includes? user.email
+        return error_template(401, "Only admins can delete other user accounts.")
+      end
+      if CONFIG.registration_enabled
+        return error_template(400, "User management is only allowed when registration is disabled.")
+      end
+
+      moduser = Invidious::Database::Users.select(email: moduser)
+      if !moduser
+        return error_template(400, "Non existing user.")
+      end
+      if CONFIG.admins.includes? moduser.email
+        return error_template(401, "Admin accounts cannot be deleted by another user.")
+      end
+    else # user deletes its own account
+      if CONFIG.admins.includes? user.email
+        return error_template(400, "Admin account cannot be deleted.")
+      end
+      if !CONFIG.registration_enabled
+        return error_template(400, "Accounts cannot be deleted when registration is disabled.")
+      end
+
+      env.request.cookies.each do |cookie|
+        cookie.expires = Time.utc(1990, 1, 1)
+        env.response.cookies << cookie
+      end
+
+      moduser = user
     end
 
-    view_name = "subscriptions_#{sha256(user.email)}"
-    Invidious::Database::Users.delete(user)
-    Invidious::Database::SessionIDs.delete(email: user.email)
-    Invidious::Database::Playlists.select_like_iv(user.email).each do |pl|
+    view_name = "subscriptions_#{sha256(moduser.email)}"
+    Invidious::Database::Users.delete(moduser)
+    Invidious::Database::SessionIDs.delete(email: moduser.email)
+    Invidious::Database::Playlists.select_like_iv(moduser.email).each do |pl|
       Invidious::Database::Playlists.delete(pl.id)
     end
     PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
-    env.request.cookies.each do |cookie|
-      cookie.expires = Time.utc(1990, 1, 1)
-      env.response.cookies << cookie
+    env.redirect referer
+  end
+
+  # Show the account creation prompt (GET request)
+  def get_create(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env)
+
+    if !user
+      return env.redirect referer
     end
 
+    user = user.as(User)
+    sid = sid.as(String)
+
+    if !CONFIG.admins.includes? user.email
+      return error_template(400, "Only admins can create users.")
+    end
+    if CONFIG.registration_enabled
+      return error_template(400, "User management is only allowed when registration is disabled.")
+    end
+
+    csrf_token = generate_response(sid, {":create_account"}, HMAC_KEY)
+
+    templated "user/create_account"
+  end
+
+  # Handle the account creation (POST request)
+  def post_create(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
+    rescue ex
+      return error_template(400, ex)
+    end
+
+    if !CONFIG.admins.includes? user.email
+      return error_template(400, "Only admins can create users.")
+    end
+    if CONFIG.registration_enabled
+      return error_template(400, "User management is only allowed when registration is disabled.")
+    end
+
+    # https://stackoverflow.com/a/574698
+    email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
+    password = env.params.body["password"]?
+
+    if email.nil? || email.empty?
+      return error_template(401, "User ID is a required field")
+    end
+
+    if password.nil? || password.empty?
+      return error_template(401, "Password is a required field")
+    end
+
+    # See https://security.stackexchange.com/a/39851
+    if password.bytesize > 55
+      return error_template(400, "Password cannot be longer than 55 characters")
+    end
+
+    password = password.byte_slice(0, 55)
+
+    moduser = Invidious::Database::Users.select(email: email)
+    if moduser
+      return error_template(400, "Already existing user.")
+    end
+
+    moduser = create_user(email, password)
+
+    Invidious::Database::Users.insert(moduser)
+
+    view_name = "subscriptions_#{sha256(moduser.email)}"
+    PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(moduser.email)}")
+
     env.redirect referer
+  end
+
+  # -------------------
+  #  User manager
+  # -------------------
+
+  # Show the user manager page (GET request)
+  def user_manager(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env, "/preferences")
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+
+    if !CONFIG.admins.includes? user.email
+      return error_template(400, "Only admins can manage users.")
+    end
+    if CONFIG.registration_enabled
+      return error_template(400, "User management is only allowed when registration is disabled.")
+    end
+
+    users = Invidious::Database::Users.select_all
+
+    templated "user/user_manager"
   end
 
   # -------------------
@@ -303,7 +504,28 @@ module Invidious::Routes::Account
     end
 
     user = user.as(User)
-    tokens = Invidious::Database::SessionIDs.select_all(user.email)
+
+    moduser = env.params.query["email"]?
+    if moduser # admin manages other user tokens
+      if !CONFIG.admins.includes? user.email
+        return error_template(401, "Only admins can manage other user tokens.")
+      end
+      if CONFIG.registration_enabled
+        return error_template(400, "User management is only allowed when registration is disabled.")
+      end
+
+      moduser = Invidious::Database::Users.select(email: moduser)
+      if !moduser
+        return error_template(400, "Non existing user.")
+      end
+      if CONFIG.admins.includes? moduser.email
+        return error_template(401, "Admin tokens cannot be managed by another user.")
+      end
+
+      tokens = Invidious::Database::SessionIDs.select_all(moduser.email)
+    else # user manages its own tokens
+      tokens = Invidious::Database::SessionIDs.select_all(user.email)
+    end
 
     templated "user/token_manager"
   end
@@ -355,9 +577,29 @@ module Invidious::Routes::Account
     session = env.params.query["session"]?
     session ||= ""
 
+    moduser = env.params.query["email"]?
+    if moduser # admin manages other user tokens
+      if !CONFIG.admins.includes? user.email
+        return error_template(401, "Only admins can manage other user tokens.")
+      end
+      if CONFIG.registration_enabled
+        return error_template(400, "User management is only allowed when registration is disabled.")
+      end
+
+      moduser = Invidious::Database::Users.select(email: moduser)
+      if !moduser
+        return error_template(400, "Non existing user.")
+      end
+      if CONFIG.admins.includes? moduser.email
+        return error_template(401, "Admin tokens cannot be managed by another user.")
+      end
+    else # user manages its own tokens
+      moduser = user
+    end
+
     case action
     when .starts_with? "action_revoke_token"
-      Invidious::Database::SessionIDs.delete(sid: session, email: user.email)
+      Invidious::Database::SessionIDs.delete(sid: session, email: moduser.email)
     else
       return error_json(400, "Unsupported action #{action}")
     end

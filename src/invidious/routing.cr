@@ -72,6 +72,9 @@ module Invidious::Routing
     post "/change_password", Routes::Account, :post_change_password
     get "/delete_account", Routes::Account, :get_delete
     post "/delete_account", Routes::Account, :post_delete
+    get "/create_account", Routes::Account, :get_create
+    post "/create_account", Routes::Account, :post_create
+    get "/user_manager", Routes::Account, :user_manager
     get "/clear_watch_history", Routes::Account, :get_clear_history
     post "/clear_watch_history", Routes::Account, :post_clear_history
     get "/authorize_token", Routes::Account, :get_authorize_token

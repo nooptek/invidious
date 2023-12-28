@@ -94,6 +94,9 @@
         var url = '/token_ajax?action_revoke_token=1&redirect=false' +
             '&referer=' + encodeURIComponent(location.href) +
             '&session=' + target.getAttribute('data-session');
+        var email = target.getAttribute('data-email');
+        if (email)
+            url += '&email=' + email;
 
         var payload = 'csrf_token=' + target.parentNode.querySelector('input[name="csrf_token"]').value;
 

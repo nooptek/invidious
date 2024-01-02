@@ -100,6 +100,9 @@ module Invidious::Routes::Account
     if CONFIG.admins.includes? user.email
       return error_template(400, "Admin account cannot be deleted.")
     end
+    if !CONFIG.registration_enabled
+      return error_template(400, "Accounts cannot be deleted when registration is disabled.")
+    end
 
     csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
 
@@ -130,6 +133,9 @@ module Invidious::Routes::Account
 
     if CONFIG.admins.includes? user.email
       return error_template(400, "Admin account cannot be deleted.")
+    end
+    if !CONFIG.registration_enabled
+      return error_template(400, "Accounts cannot be deleted when registration is disabled.")
     end
 
     view_name = "subscriptions_#{sha256(user.email)}"

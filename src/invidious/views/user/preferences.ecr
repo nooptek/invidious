@@ -349,7 +349,7 @@
                     <a href="/feed/history"><%= translate(locale, "Watch history") %></a>
                 </div>
 
-                <% if !CONFIG.admins.includes? env.get?("user").as(Invidious::User).email %>
+                <% if CONFIG.registration_enabled && !CONFIG.admins.includes? env.get?("user").as(Invidious::User).email %>
                     <div class="pure-control-group">
                         <a href="/delete_account?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Delete account") %></a>
                     </div>

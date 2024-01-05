@@ -8,6 +8,7 @@ module Invidious::Videos
     UltraLow
     Low
     Medium
+    High
   end
 
   # "SPATIAL_AUDIO_TYPE_"

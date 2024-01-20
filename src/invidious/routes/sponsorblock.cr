@@ -18,41 +18,59 @@ module Invidious::Routes::SponsorBlock
     query = URI::Params.encode(query)
     query = "/api/skipSegments/#{hash}?#{query}"
 
-    result = nil
-    begin
-      make_client(CONFIG.sponsorblock_url) do |client|
-        client.connect_timeout = 1.seconds
-        client.read_timeout = 3.seconds
-        result = client.get(query)
-      end
-    rescue
-    end
+    chan = ::Channel(Int32 | JSON::Any).new
 
-    if result.nil?
-      haltf env, 500
-    elsif result.status_code < 200
-      # 1xx
-      haltf env, 500
-    elsif result.status_code < 300
-      # 2xx ok, continue
-    elsif result.status_code < 400
-      # 3xx
-      haltf env, 500
-    else
-      # >= 4xx
-      haltf env, result.status_code
-    end
-
-    begin
-      segments = JSON.parse(result.body)
-      segments.as_a.each do |vid|
-        if vid["videoID"] == id
-          return vid["segments"].to_json
+    CONFIG.sponsorblock_urls.each do |url|
+      spawn do
+        result = nil
+        begin
+          make_client(url) do |client|
+            client.connect_timeout = 1.seconds
+            client.read_timeout = 3.seconds
+            result = client.get(query)
+          end
+        rescue
         end
+
+        ret = 500
+        if result.nil?
+          # error
+        elsif result.status_code < 200
+          # 1xx
+        elsif result.status_code < 300
+          # 2xx ok, continue
+          begin
+            segments = JSON.parse(result.body)
+            segments.as_a.each do |vid|
+              if vid["videoID"] == id
+                ret = vid["segments"]
+              end
+            end
+            raise "not found"
+          rescue
+          else
+            ret = 404
+          end
+        elsif result.status_code < 400
+          # 3xx
+        else
+          # >= 4xx
+          ret = result.status_code
+        end
+
+        chan.send ret
       end
-      haltf env, 404
-    rescue
-      haltf env, 500
     end
+
+    ret = 500
+    CONFIG.sponsorblock_urls.size.times do
+      ret = chan.receive
+      case ret
+      in Int32
+      in JSON::Any then return ret.to_json
+      end
+    end
+
+    haltf env, ret
   end
 end

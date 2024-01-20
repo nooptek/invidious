@@ -319,11 +319,11 @@ https_only: false
 # -----------------------------
 
 ##
-## SponsorBlock server URL
+## SponsorBlock servers URL list
 ##
-## Default: "https://sponsor.ajay.app"
+## Default: ["https://sponsor.ajay.app"]
 ##
-#sponsorblock_url:
+#sponsorblock_urls:
 
 # -----------------------------
 #  Background jobs

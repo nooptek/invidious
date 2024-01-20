@@ -169,6 +169,33 @@ struct Preferences
     end
   end
 
+  module URIArrayConverter
+    def self.to_yaml(value : Array(URI), yaml : YAML::Nodes::Builder)
+      yaml.sequence do
+        value.each do |element|
+          yaml.scalar element.normalize!
+        end
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(URI)
+      unless node.is_a?(YAML::Nodes::Sequence)
+        node.raise "Expected sequence, not #{node.class}"
+      end
+
+      result = [] of URI
+      node.nodes.each do |item|
+        unless item.is_a?(YAML::Nodes::Scalar)
+          node.raise "Expected scalar, not #{item.class}"
+        end
+
+        result << URI.parse item.value
+      end
+
+      result
+    end
+  end
+
   module ProcessString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value

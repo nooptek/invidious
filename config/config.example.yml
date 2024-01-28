@@ -315,6 +315,17 @@ https_only: false
 #enable_user_notifications: true
 
 # -----------------------------
+#  SponsorBlock
+# -----------------------------
+
+##
+## SponsorBlock server URL
+##
+## Default: "https://sponsor.ajay.app"
+##
+#sponsorblock_url:
+
+# -----------------------------
 #  Background jobs
 # -----------------------------
 

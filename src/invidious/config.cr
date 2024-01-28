@@ -126,6 +126,10 @@ class Config
   # Enable the user notifications for all users
   property enable_user_notifications : Bool = true
 
+  # SponsorBlock server URL
+  @[YAML::Field(converter: Preferences::URIConverter)]
+  property sponsorblock_url : URI = URI.parse("https://sponsor.ajay.app")
+
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link
   property modified_source_code_url : String? = nil

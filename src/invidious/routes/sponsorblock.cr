@@ -20,7 +20,7 @@ module Invidious::Routes::SponsorBlock
 
     result = nil
     begin
-      make_client(SB_URL) do |client|
+      make_client(CONFIG.sponsorblock_url) do |client|
         client.connect_timeout = 1.seconds
         client.read_timeout = 3.seconds
         result = client.get(query)

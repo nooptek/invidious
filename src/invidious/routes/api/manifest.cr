@@ -15,6 +15,7 @@ module Invidious::Routes::API::Manifest
     acodecs = env.params.query["acodecs"]?
     vcodecs = env.params.query["vcodecs"]?
 
+    listen = env.params.query["listen"]?.try { |q| (q == "true" || q == "1") } || false
     full = env.params.query["full"]?.try { |q| (q == "true" || q == "1") } || false
 
     begin
@@ -58,9 +59,14 @@ module Invidious::Routes::API::Manifest
 
     if full
       audio_streams = video.audio_streams_raw
-      video_streams = video.video_streams_raw
     else
       audio_streams = video.audio_streams(acodecs)
+    end
+    if listen
+      video_streams = [] of Invidious::Videos::AdaptativeVideoStream
+    elsif full
+      video_streams = video.video_streams_raw
+    else
       video_streams = video.video_streams(vcodecs)
     end
 

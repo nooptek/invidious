@@ -7,6 +7,11 @@
         <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
+            <% if params.quality == "dash" %>
+                <% acodecs = preferences.acodecs.try { |s| "&acodecs=" + URI.encode_path_segment(s) }.to_s %>
+                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&listen=true<%= acodecs %>" type='application/dash+xml' label="dash">
+            <% end %>
+
             <%
                audio_streams.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt.itag}"
@@ -21,7 +26,7 @@
                   src_url += "&tid=#{HTML.escape(fmt.track_id.not_nil!)}"
                 end
 
-                selected = (i == 0)
+                selected = (params.quality != "dash" && i == 0)
             %>
                 <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= label %>" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>

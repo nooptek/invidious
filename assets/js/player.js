@@ -35,6 +35,11 @@ if (player_data.aspect_ratio) {
     options.aspectRatio = player_data.aspect_ratio;
 }
 
+if (video_data.params.listen && video_data.params.quality === 'dash') {
+    const idx = options.controlBar.children.indexOf('qualitySelector');
+    options.controlBar.children.splice(idx, 1);
+}
+
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
 var short_url = location.origin + '/' + video_data.id + embed_url.search;
@@ -197,8 +202,8 @@ if (isMobile()) {
 
     var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
-    if (!video_data.params.listen && video_data.params.quality === 'dash') buttons.push('audioTrackButton');
-    if (video_data.params.listen || video_data.params.quality !== 'dash') buttons.push('qualitySelector');
+    if (video_data.params.quality === 'dash') buttons.push('audioTrackButton');
+    else buttons.push('qualitySelector');
 
     // Create new control bar object for operation buttons
     const ControlBar = videojs.getComponent('controlBar');
@@ -732,7 +737,7 @@ if (player.share) player.share(shareOptions);
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
     player.ready(function () {
-        if (!video_data.params.listen && video_data.params.quality === 'dash') {
+        if (video_data.params.quality === 'dash') {
             // play.textTracks()[0] on DASH mode is showing some debug messages
             player.textTracks()[1].mode = 'showing';
         } else {

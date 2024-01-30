@@ -6,7 +6,7 @@ module Invidious::Routes::Login
 
     user = env.get? "user"
 
-    referer = get_referer(env, "/feed/subscriptions")
+    referer = get_referer(env, "/")
 
     return env.redirect referer if user
 
@@ -30,7 +30,7 @@ module Invidious::Routes::Login
   def self.login(env)
     locale = env.get("preferences").as(Preferences).locale
 
-    referer = get_referer(env, "/feed/subscriptions")
+    referer = get_referer(env, "/")
 
     if !CONFIG.login_enabled
       return error_template(403, "Login has been disabled by administrator.")

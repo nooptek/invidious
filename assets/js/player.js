@@ -165,7 +165,7 @@ player.on('timeupdate', function () {
 
 
 var shareOptions = {
-    socials: ['fbFeed', 'tw', 'reddit', 'email'],
+    socials: ['email'],
 
     get url() {
         return addCurrentTimeToURL(short_url);

@@ -149,7 +149,7 @@ module Invidious::Routes::Login
         end
 
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-        user, sid = create_user(sid, email, password)
+        user = create_user(email, password)
 
         if language_header = env.request.headers["Accept-Language"]?
           if language = ANG.language_negotiator.best(language_header, LOCALES.keys)

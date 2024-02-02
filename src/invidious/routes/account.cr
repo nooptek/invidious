@@ -126,6 +126,9 @@ module Invidious::Routes::Account
     view_name = "subscriptions_#{sha256(user.email)}"
     Invidious::Database::Users.delete(user)
     Invidious::Database::SessionIDs.delete(email: user.email)
+    Invidious::Database::Playlists.select_like_iv(user.email).each do |pl|
+      Invidious::Database::Playlists.delete(pl.id)
+    end
     PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
     env.request.cookies.each do |cookie|

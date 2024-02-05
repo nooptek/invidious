@@ -57,7 +57,19 @@ end
 # Simple alias to make code easier to read
 alias IV = Invidious
 
-CONFIG_FILE = ENV["INVIDIOUS_CONFIG_FILE"]? || "config/config.yml"
+{% if flag?(:use_fhs) %}
+# Use Filesystem Hierarchy Standard locations
+DATA_DIR = "/usr/share/invidious"
+CONFIG_DIR = "/etc/invidious"
+SQL_DATA_DIR = DATA_DIR
+{% else %}
+# Assume executable is run from git repo
+DATA_DIR = "."
+CONFIG_DIR = "#{DATA_DIR}/config"
+SQL_DATA_DIR = CONFIG_DIR
+{% end %}
+
+CONFIG_FILE = ENV["INVIDIOUS_CONFIG_FILE"]? || "#{CONFIG_DIR}/config.yml"
 ENV_CONFIG_YAML = "INVIDIOUS_CONFIG"
 
 CONFIG   = Config.load
@@ -216,7 +228,7 @@ end
 
 # Init Kemal
 
-public_folder "assets"
+public_folder "#{DATA_DIR}/assets"
 
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new

@@ -49,7 +49,7 @@ module Invidious::Database
       LOGGER.info("check_table: check_table: CREATE TABLE #{table_name}")
 
       PG_DB.using_connection do |conn|
-        conn.as(PG::Connection).exec_all(File.read("config/sql/#{table_name}.sql"))
+        conn.as(PG::Connection).exec_all(File.read("#{SQL_DATA_DIR}/sql/#{table_name}.sql"))
       end
     end
 
@@ -57,7 +57,7 @@ module Invidious::Database
 
     struct_array = struct_type.type_array
     column_array = get_column_array(PG_DB, table_name)
-    column_types = File.read("config/sql/#{table_name}.sql").match(/CREATE TABLE public\.#{table_name}\n\((?<types>[\d\D]*?)\);/)
+    column_types = File.read("#{SQL_DATA_DIR}/sql/#{table_name}.sql").match(/CREATE TABLE public\.#{table_name}\n\((?<types>[\d\D]*?)\);/)
       .try &.["types"].split(",").map(&.strip).reject &.starts_with?("CONSTRAINT")
 
     return if !column_types

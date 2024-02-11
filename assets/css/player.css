@@ -105,8 +105,14 @@ ul.vjs-menu-content::-webkit-scrollbar {
   order: 3;
 }
 
+.vjs-chapters-button .vjs-menu-item,
 .vjs-quality-selector .vjs-menu-item {
   text-transform: none;
+}
+
+.vjs-chapters-button .vjs-menu {
+  width: 20em;
+  left: -4em;
 }
 
 .vjs-captions-button .vjs-menu .vjs-menu-content,
@@ -117,6 +123,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
   min-width: 10em;
 }
 
+.vjs-chapters-button .vjs-menu .vjs-menu-content .vjs-menu-item,
 .vjs-captions-button .vjs-menu .vjs-menu-content .vjs-menu-item,
 .vjs-audio-button .vjs-menu .vjs-menu-content .vjs-menu-item,
 .vjs-quality-selector .vjs-menu .vjs-menu-content .vjs-menu-item {

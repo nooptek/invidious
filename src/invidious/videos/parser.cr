@@ -288,7 +288,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       "endScreen", "watchNextEndScreenRenderer", "results"
     )
 
-    player_overlays.try &.as_a.each do |element|
+    end_screen_watch_next_array.try &.as_a.each do |element|
       if item = element["endScreenVideoRenderer"]?
         related_video = parse_related_video(item)
         related << JSON::Any.new(related_video) if related_video

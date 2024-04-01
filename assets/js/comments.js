@@ -52,6 +52,11 @@ function show_youtube_replies(event) {
     target.setAttribute('data-sub-text', sub_text);
 }
 
+function force_load_comments(e) {
+    get_youtube_comments();
+    return false;
+}
+
 function get_youtube_comments() {
     var comments = document.getElementById('comments');
 
@@ -68,7 +73,15 @@ function get_youtube_comments() {
         url += '&ucid=' + video_data.ucid
     }
 
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
+    var onNon200 = function (xhr) {
+        comments.innerHTML = fallback;
+
+        var load_comments = document.getElementById('force-load-comments');
+        if (load_comments) {
+            load_comments.style.display = 'inline';
+            load_comments.onclick = force_load_comments;
+        }
+    };
     if (video_data.params.comments[1] === 'youtube')
         onNon200 = function (xhr) {};
 

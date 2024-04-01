@@ -65,6 +65,13 @@
                                 <% end %>
                             </a>
                         </div>
+                        <% if CONFIG.enable_user_notifications %>
+                            <div class="pure-u-1-4">
+                                <a title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions?clear_notifs=0" class="pure-menu-heading">
+                                    <i class="icon ion-ios-notifications-off"></i>
+                                </a>
+                            </div>
+                        <% end %>
                         <% if CONFIG.admins.includes? env.get("user").as(Invidious::User).email %>
                             <div class="pure-u-1-4">
                                 <a title="<%= translate(locale, "Flush videos cache") %>" href="/flushvidcache?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">

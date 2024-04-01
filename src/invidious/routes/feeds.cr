@@ -95,9 +95,12 @@ module Invidious::Routes::Feeds
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
+    clear_notifs = env.params.query["clear_notifs"]?
+    clear_notifs = (clear_notifs.nil? || clear_notifs == "true" || clear_notifs == "1")
+
     videos, notifications = get_subscription_feed(user, max_results, page)
 
-    if CONFIG.enable_user_notifications
+    if CONFIG.enable_user_notifications && clear_notifs
       # "updated" here is used for delivering new notifications, so if
       # we know a user has looked at their feed e.g. in the past 10 minutes,
       # they've already seen a video posted 20 minutes ago, and don't need
@@ -108,8 +111,11 @@ module Invidious::Routes::Feeds
     env.set "user", user
 
     # Used for pagination links
+    params = URI::Params.new
+    params.add("max_results", max_results.to_s) if env.params.query.has_key?("max_results")
+    params.add("clear_notifs", clear_notifs.to_unsafe.to_s) if env.params.query.has_key?("clear_notifs")
     base_url = "/feed/subscriptions"
-    base_url += "?max_results=#{max_results}" if env.params.query.has_key?("max_results")
+    base_url += "?#{params}" unless params.empty?
 
     templated "feeds/subscriptions"
   end

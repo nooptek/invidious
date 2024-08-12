@@ -316,7 +316,7 @@ function updateCookie(newVolume, newSpeed) {
 
     var secure = location.protocol.startsWith("https") ? " Secure;" : "";
 
-    document.cookie = 'PREFS=' + cookieData + '; SameSite=Lax; path=/; domain=' +
+    document.cookie = 'PREFS=' + cookieData + '; SameSite=None; path=/; domain=' +
         domainUsed + '; expires=' + date.toGMTString() + ';' + secure;
 
     video_data.params.volume = volumeValue;

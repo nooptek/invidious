@@ -4,9 +4,7 @@ struct Invidious::User
   module Cookies
     extend self
 
-    # Note: we use ternary operator because the two variables
-    # used in here are not booleans.
-    SECURE = (Kemal.config.ssl || CONFIG.https_only) ? true : false
+    SECURE = !!(Kemal.config.ssl || CONFIG.https_only || CONFIG.login_required)
 
     # Session ID (SID) cookie
     # Parameter "domain" comes from the global config
@@ -18,7 +16,7 @@ struct Invidious::User
         expires: Time.utc + 2.years,
         secure: SECURE,
         http_only: true,
-        samesite: HTTP::Cookie::SameSite::Lax
+        samesite: CONFIG.login_required ? HTTP::Cookie::SameSite::None : HTTP::Cookie::SameSite::Lax
       )
     end
 
@@ -32,7 +30,7 @@ struct Invidious::User
         expires: Time.utc + 2.years,
         secure: SECURE,
         http_only: false,
-        samesite: HTTP::Cookie::SameSite::Lax
+        samesite: HTTP::Cookie::SameSite::None
       )
     end
   end
